@@ -38,7 +38,7 @@
         }
         
         #map {
-            height: calc(100vh - 200px);
+            height: calc(100vh - 100px);
             width: 100%;
         }
         
@@ -93,7 +93,7 @@
         
         .leaflet-popup-content {
             margin: 15px;
-            min-width: 250px;
+            min-width: 280px;
         }
         
         .popup-title {
@@ -119,7 +119,7 @@
         .popup-label {
             font-weight: 600;
             color: #667eea;
-            min-width: 80px;
+            min-width: 90px;
         }
         
         .popup-value {
@@ -177,35 +177,6 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        
-        #filters {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            z-index: 1000;
-            max-width: 300px;
-        }
-        
-        #filters h4 {
-            margin: 0 0 10px 0;
-            font-size: 14px;
-            color: #333;
-        }
-        
-        .filter-checkbox {
-            display: flex;
-            align-items: center;
-            margin: 8px 0;
-            font-size: 13px;
-        }
-        
-        .filter-checkbox input {
-            margin-right: 8px;
-        }
     </style>
 </head>
 <body>
@@ -220,16 +191,6 @@
     </div>
     
     <div id="map"></div>
-    
-    <div id="filters">
-        <h4>🎨 Afficher les régions</h4>
-        <div class="filter-checkbox">
-            <input type="checkbox" id="filter-all" checked>
-            <label for="filter-all"><strong>Toutes les régions</strong></label>
-        </div>
-        <hr style="margin: 10px 0; border: none; border-top: 1px solid #ddd;">
-        <div id="region-filters"></div>
-    </div>
     
     <div id="legend">
         <h3>Légende</h3>
@@ -250,7 +211,7 @@
         </div>
         <hr style="margin: 15px 0; border: none; border-top: 1px solid #ddd;">
         <div style="font-size: 12px; color: #666;">
-            <strong>Total lignes affichées:</strong> <span id="total-lines">0</span>
+            <strong>Total lignes:</strong> <span id="total-lines">0</span>
         </div>
     </div>
 
@@ -258,16 +219,64 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <script>
-        // Initialiser la carte centrée sur la France
+        // Coordonnées GPS des gares
+        const garesCoords = {
+            "Nancy": [48.6892, 6.1763], "Contrexville": [48.1833, 5.8833], "Épinal": [48.1833, 6.45],
+            "Saint-Die-des-vosges": [48.2833, 6.9333], "Strasbourg": [48.5839, 7.7355],
+            "Sélestat": [48.2597, 7.4581], "Molsheim": [48.5433, 7.4903], "Metz": [49.1097, 6.1769],
+            "Trier": [49.7597, 6.6414], "Saarbrücken": [49.2411, 6.9969], "Wissembourg": [49.0392, 7.9481],
+            "Neustadt": [49.3508, 8.1353], "Lauterbourg": [48.9756, 8.1756], "Wörth": [49.0547, 8.2586],
+            "Karlsruhe": [49.0069, 8.4036], "Offenburg": [48.4717, 7.9417], "Mulhouse": [47.7467, 7.3392],
+            "Müllheim": [47.8083, 7.6289], "Epernay": [49.0419, 3.9581], "Reims": [49.2589, 4.0253],
+            "ChâteauThierry": [49.0467, 3.4008], "ChampagneArdenneTGV": [49.2269, 4.2069],
+            "Charleville-Mézières": [49.7686, 4.7181], "Charleville-mézières": [49.7686, 4.7181],
+            "Sedan": [49.7017, 4.9392], "Givet": [50.1367, 4.8256], "Hirson": [49.9219, 4.0833],
+            "Longuyon": [49.4506, 5.6011], "Longwy": [49.5194, 5.7647], "Thionville": [49.3578, 6.1667],
+            "Châlons-en-Champagne": [48.9561, 4.3656], "Saint-Dizier": [48.6381, 4.9497],
+            "Chaumont": [48.1108, 5.1389], "Culmont-Chalindrey": [47.8392, 5.3847],
+            "Fismes": [49.3106, 3.6817], "Laon": [49.5633, 3.6239], "Dijon": [47.3239, 5.0267],
+            "Mâcon": [46.3069, 4.8283], "Cosne": [47.4106, 2.9269], "Moulins": [46.5672, 3.3333],
+            "Chagny": [46.9108, 4.7556], "Nevers": [46.9906, 3.1514], "Montchanin": [46.7447, 4.4675],
+            "Paray": [46.4517, 4.1197], "Lyon": [45.7603, 4.8592], "Amiens": [49.8642, 2.3078],
+            "Tergnier": [49.6556, 3.2908], "Saint-Quentin": [49.8478, 3.2872], "Albert": [50.0036, 2.6517],
+            "Lille": [50.6367, 3.0764], "Abbeville": [50.1053, 1.8336], "Beauvais": [49.4447, 2.0808],
+            "Abancourt": [49.6917, 1.7667], "LeTréport": [50.0606, 1.3761], "Creil": [49.2592, 2.4761],
+            "Montdidier": [49.6492, 2.5694], "Compiègne": [49.4178, 2.8261], "Rouen": [49.4436, 1.0939],
+            "Paris": [48.8566, 2.3522], "Calais": [50.9511, 1.8583], "Maubeuge": [50.2772, 3.9728],
+            "Cambrai": [50.1764, 3.2347], "Roissy": [49.0097, 2.5478],
+            "Saint-pol-sur-ternoise": [50.3833, 2.3333], "Arras": [50.2900, 2.7806],
+            "Béthune": [50.5300, 2.6400], "Etaples": [50.5178, 1.6375], "Nantes": [47.2173, -1.5417],
+            "Nort-sur-Erdre": [47.4381, -1.4989], "Chateaubriand": [47.7167, -1.3667],
+            "Clisson": [47.0867, -1.2800], "Pornic": [47.1158, -2.1028],
+            "Saint-Gilles-Croix-de-vie": [46.6967, -1.9400], "LaRoche-sur-yon": [46.6706, -1.4264],
+            "LesSablesd'olonne": [46.4967, -1.7833], "LaRochelle": [46.1583, -1.1514],
+            "Cholet": [47.0594, -0.8778], "Angers": [47.4639, -0.5561], "Marseille": [43.3028, 5.3806],
+            "Toulon": [43.1247, 5.9300], "Nice": [43.7031, 7.2619], "LesArcsDraguignan": [43.4606, 6.4783],
+            "Vintimille": [43.7897, 7.5078], "Cannes": [43.5528, 7.0175], "Grasse": [43.6583, 6.9222],
+            "Breil-sur-Roya": [43.9400, 7.5167], "Tende": [44.0889, 7.5953], "Aubagne": [43.2933, 5.5706],
+            "Hyères": [43.1200, 6.1289], "Aix-en-provence": [43.5297, 5.4475], "Pertuis": [43.6947, 5.5014],
+            "Gap": [44.5600, 6.0797], "Briançon": [44.9000, 6.6333], "Valence": [44.9331, 4.8919],
+            "Romans": [45.0458, 5.0511], "Miramas": [43.5833, 5.0000], "Avignon": [43.9419, 4.8061],
+            "Nîmes": [43.8367, 4.3603], "Montpellier": [43.6047, 3.8808], "Carpentras": [44.0556, 5.0478],
+            "Caen": [49.1764, -0.3486], "Coutances": [49.0478, -1.4450], "Saint-Lô": [49.1156, -1.0906],
+            "Evreux": [49.0233, 1.1489], "Cherbourg": [49.6450, -1.6244], "Lisieux": [49.1467, 0.2267],
+            "Granville": [48.8378, -1.5978], "Rennes": [48.1039, -1.6722],
+            "Trouville-Deauville": [49.3656, 0.0800], "Dives-Cabourg": [49.2886, -0.0997],
+            "Rochefort": [45.9367, -0.9633], "Saintes": [45.7469, -0.6333], "Bordeaux": [44.8378, -0.5792],
+            "Angoulême": [45.6500, 0.1600], "Royan": [45.6250, -1.0286], "Niort": [46.3236, -0.4614],
+            "Poitiers": [46.5806, 0.3406], "Tours": [47.3900, 0.6889], "Châtellerault": [46.8178, 0.5464],
+            "Clermont": [45.7797, 3.0867], "Limoges": [45.8336, 1.2639], "Toulouse": [43.6108, 1.4542]
+        };
+        
+        // Initialiser la carte
         const map = L.map('map').setView([46.603354, 2.888334], 6);
         
-        // Ajouter le fond de carte
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors',
             maxZoom: 18
         }).addTo(map);
         
-        // Définition des couleurs par statut
+        // Couleurs par statut
         const statusColors = {
             'attribue_SNCF': '#4CAF50',
             'attribue_concurrent': '#2196F3',
@@ -280,46 +289,12 @@
             'mis_en_concurrence_pas_attribue': 'Mis en concurrence (non attribué)'
         };
         
-        // Mapping région JSON -> régions Excel (anciennes régions)
-        const regionMapping = {
-            'Bourgogne-Franche-Comté': ['Bourgogne', 'Franche-Comté'],
-            'Grand Est': ['Alsace', 'Champagne-Ardenne', 'Lorraine'],
-            'Hauts-de-France': ['Nord-Pas-de-Calais', 'Picardie'],
-            'Normandie': ['Haute-Normandie', 'Basse-Normandie'],
-            'Nouvelle-Aquitaine': ['Aquitaine', 'Limousin', 'Poitou-Charentes'],
-            'Provence-Alpes-Côte d\'Azur': ['Provence-Alpes-Côte-d\'Azur'],
-            'Pays de la Loire': ['Pays de la Loire'],
-            'France entière (État)': ['*'] // Wildcard pour toutes les régions
-        };
+        function parseRelation(relation) {
+            // Nettoyer et séparer les villes
+            return relation.split('>').map(v => v.trim());
+        }
         
-        // Stocker toutes les polylines par région
-        const allPolylinesByRegion = {};
-        const regionLayers = {};
-        
-        // Fonction pour créer une popup avec info sur la région
-        function createRegionPopup(region, codeLigne, etatLignes) {
-            // Trouver les lignes correspondant à cette région
-            const lignesRegion = etatLignes.filter(l => {
-                const regions = regionMapping[l.region] || [l.region];
-                return regions.includes(region) || regions.includes('*');
-            });
-            
-            if (lignesRegion.length === 0) {
-                return `
-                    <div class="popup-title">Ligne ${codeLigne}</div>
-                    <div class="popup-info">
-                        <div class="popup-row">
-                            <span class="popup-label">Région:</span>
-                            <span class="popup-value">${region}</span>
-                        </div>
-                        <div class="popup-row">
-                            <span class="popup-value">Aucune info d'état disponible</span>
-                        </div>
-                    </div>
-                `;
-            }
-            
-            const ligne = lignesRegion[0]; // Prendre la première ligne correspondante
+        function createPopup(ligne) {
             const operateur = ligne.operateur || 'Non attribué';
             const statusClass = ligne.statut === 'attribue_SNCF' ? 'status-sncf' : 
                                 ligne.statut === 'attribue_concurrent' ? 'status-concurrent' : 
@@ -350,10 +325,6 @@
                         <span class="popup-value">${operateur}</span>
                     </div>
                     ` : ''}
-                    <hr style="margin: 8px 0;">
-                    <div style="font-size: 11px; color: #888;">
-                        Code ligne: ${codeLigne}
-                    </div>
                 </div>
             `;
         }
@@ -362,96 +333,48 @@
         fetch('railway_data.json')
             .then(response => response.json())
             .then(data => {
-                console.log('Données chargées:', data);
-                
-                const geoData = data.geo_data;
                 const etatLignes = data.etat_lignes;
                 
-                // Créer un index des régions concernées par statut
-                const regionsByStatus = {};
-                etatLignes.forEach(ligne => {
-                    const regions = regionMapping[ligne.region] || [ligne.region];
-                    regions.forEach(region => {
-                        if (!regionsByStatus[region]) {
-                            regionsByStatus[region] = {
-                                'attribue_SNCF': false,
-                                'attribue_concurrent': false,
-                                'mis_en_concurrence_pas_attribue': false
-                            };
-                        }
-                        regionsByStatus[region][ligne.statut] = true;
-                    });
-                });
-                
-                console.log('Régions par statut:', regionsByStatus);
-                
-                // Afficher TOUTES les lignes de toutes les régions concernées
-                let totalLines = 0;
-                
-                Object.entries(geoData).forEach(([codeLigne, segments]) => {
-                    segments.forEach(segment => {
-                        const region = segment.region;
-                        const coords = segment.coordinates;
-                        
-                        // Déterminer le statut de cette région
-                        let statut = null;
-                        let color = '#888888'; // Gris par défaut
-                        
-                        if (regionsByStatus[region]) {
-                            // Priorité: concurrent > SNCF > en_concurrence
-                            if (regionsByStatus[region]['attribue_concurrent']) {
-                                statut = 'attribue_concurrent';
-                                color = statusColors['attribue_concurrent'];
-                            } else if (regionsByStatus[region]['attribue_SNCF']) {
-                                statut = 'attribue_SNCF';
-                                color = statusColors['attribue_SNCF'];
-                            } else if (regionsByStatus[region]['mis_en_concurrence_pas_attribue']) {
-                                statut = 'mis_en_concurrence_pas_attribue';
-                                color = statusColors['mis_en_concurrence_pas_attribue'];
-                            }
-                        }
-                        
-                        // Simplifier les coordonnées
-                        const simplified = coords.filter((_, i) => i % 3 === 0 || i === coords.length - 1);
-                        
-                        // Convertir [lon, lat] en [lat, lon] pour Leaflet
-                        const latLngs = simplified.map(c => [c[1], c[0]]);
-                        
-                        if (latLngs.length >= 2) {
-                            const polyline = L.polyline(latLngs, {
-                                color: color,
-                                weight: statut ? 4 : 2,
-                                opacity: statut ? 0.8 : 0.3
-                            });
-                            
-                            polyline.bindPopup(createRegionPopup(region, codeLigne, etatLignes));
-                            
-                            // Stocker par région
-                            if (!allPolylinesByRegion[region]) {
-                                allPolylinesByRegion[region] = [];
-                            }
-                            allPolylinesByRegion[region].push({
-                                polyline: polyline,
-                                statut: statut
-                            });
-                            
-                            // Créer le layer si nécessaire
-                            if (!regionLayers[region]) {
-                                regionLayers[region] = L.layerGroup().addTo(map);
-                            }
-                            
-                            polyline.addTo(regionLayers[region]);
-                            totalLines++;
-                        }
-                    });
-                });
-                
-                // Compter les lignes par statut
                 const counts = {
-                    'attribue_SNCF': etatLignes.filter(l => l.statut === 'attribue_SNCF').length,
-                    'attribue_concurrent': etatLignes.filter(l => l.statut === 'attribue_concurrent').length,
-                    'mis_en_concurrence_pas_attribue': etatLignes.filter(l => l.statut === 'mis_en_concurrence_pas_attribue').length
+                    'attribue_SNCF': 0,
+                    'attribue_concurrent': 0,
+                    'mis_en_concurrence_pas_attribue': 0
                 };
+                
+                let totalLines = 0;
+                let missingGares = new Set();
+                
+                // Pour chaque ligne dans le JSON
+                etatLignes.forEach(ligne => {
+                    const villes = parseRelation(ligne.relation);
+                    const color = statusColors[ligne.statut];
+                    
+                    // Tracer la ligne entre chaque paire de villes consécutives
+                    for (let i = 0; i < villes.length - 1; i++) {
+                        const ville1 = villes[i];
+                        const ville2 = villes[i + 1];
+                        
+                        const coord1 = garesCoords[ville1];
+                        const coord2 = garesCoords[ville2];
+                        
+                        if (coord1 && coord2) {
+                            const polyline = L.polyline([coord1, coord2], {
+                                color: color,
+                                weight: 4,
+                                opacity: 0.7
+                            });
+                            
+                            polyline.bindPopup(createPopup(ligne));
+                            polyline.addTo(map);
+                            totalLines++;
+                        } else {
+                            if (!coord1) missingGares.add(ville1);
+                            if (!coord2) missingGares.add(ville2);
+                        }
+                    }
+                    
+                    counts[ligne.statut]++;
+                });
                 
                 // Mettre à jour les compteurs
                 document.getElementById('count-sncf').textContent = counts['attribue_SNCF'];
@@ -459,64 +382,23 @@
                 document.getElementById('count-encours').textContent = counts['mis_en_concurrence_pas_attribue'];
                 document.getElementById('total-lines').textContent = totalLines;
                 
-                // Créer les filtres par région
-                const regionFiltersDiv = document.getElementById('region-filters');
-                const sortedRegions = Object.keys(allPolylinesByRegion).sort();
-                
-                sortedRegions.forEach(region => {
-                    const div = document.createElement('div');
-                    div.className = 'filter-checkbox';
-                    div.innerHTML = `
-                        <input type="checkbox" id="filter-${region}" checked>
-                        <label for="filter-${region}">${region} (${allPolylinesByRegion[region].length})</label>
-                    `;
-                    regionFiltersDiv.appendChild(div);
-                    
-                    // Gérer le changement
-                    document.getElementById(`filter-${region}`).addEventListener('change', function(e) {
-                        if (e.target.checked) {
-                            regionLayers[region].addTo(map);
-                        } else {
-                            map.removeLayer(regionLayers[region]);
-                        }
-                        updateFilterAll();
-                    });
-                });
-                
-                // Gérer le filtre "Toutes les régions"
-                document.getElementById('filter-all').addEventListener('change', function(e) {
-                    sortedRegions.forEach(region => {
-                        const checkbox = document.getElementById(`filter-${region}`);
-                        checkbox.checked = e.target.checked;
-                        if (e.target.checked) {
-                            regionLayers[region].addTo(map);
-                        } else {
-                            map.removeLayer(regionLayers[region]);
-                        }
-                    });
-                });
-                
-                function updateFilterAll() {
-                    const allChecked = sortedRegions.every(region => 
-                        document.getElementById(`filter-${region}`).checked
-                    );
-                    document.getElementById('filter-all').checked = allChecked;
+                // Afficher les gares manquantes
+                if (missingGares.size > 0) {
+                    console.warn('Gares sans coordonnées:', Array.from(missingGares));
                 }
                 
-                // Cacher le loading
                 document.getElementById('loading').style.display = 'none';
                 
-                console.log('Carte chargée avec succès!');
-                console.log('Total lignes affichées:', totalLines);
-                console.log('Régions:', sortedRegions);
+                console.log('Carte chargée!');
+                console.log('Lignes tracées:', totalLines);
+                console.log('Compteurs:', counts);
             })
             .catch(error => {
-                console.error('Erreur lors du chargement des données:', error);
+                console.error('Erreur:', error);
                 document.getElementById('loading').innerHTML = `
                     <div style="color: #d32f2f;">
                         <h3>Erreur de chargement</h3>
-                        <p>Impossible de charger les données ferroviaires.</p>
-                        <p style="font-size: 12px; margin-top: 10px;">${error.message}</p>
+                        <p>${error.message}</p>
                     </div>
                 `;
             });
