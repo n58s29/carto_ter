@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ouverture à la Concurrence - Lignes Ferroviaires</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+    <title>Ouverture à la concurrence des lignes ferroviaires françaises</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
     <style>
         * {
             margin: 0;
@@ -13,8 +16,8 @@
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-            background: #f5f5f5;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f5f5f5;
         }
         
         #header {
@@ -35,20 +38,24 @@
         }
         
         #map {
-            height: calc(100vh - 120px);
+            height: calc(100vh - 200px);
             width: 100%;
         }
         
-        .legend {
+        #legend {
+            position: absolute;
+            bottom: 30px;
+            right: 20px;
             background: white;
-            padding: 15px;
+            padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
-            max-width: 280px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            max-width: 350px;
         }
         
-        .legend h3 {
-            margin: 0 0 12px 0;
+        #legend h3 {
+            margin: 0 0 15px 0;
             font-size: 16px;
             color: #333;
             border-bottom: 2px solid #667eea;
@@ -58,66 +65,88 @@
         .legend-item {
             display: flex;
             align-items: center;
-            margin: 8px 0;
-            font-size: 13px;
-            color: #555;
+            margin-bottom: 12px;
         }
         
         .legend-line {
-            width: 30px;
+            width: 40px;
             height: 4px;
-            margin-right: 10px;
+            margin-right: 12px;
             border-radius: 2px;
         }
         
-        .legend-note {
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid #eee;
-            font-size: 11px;
-            color: #777;
-            font-style: italic;
+        .legend-text {
+            font-size: 13px;
+            color: #555;
+            flex: 1;
+        }
+        
+        .legend-count {
+            font-size: 12px;
+            color: #888;
+            background: #f0f0f0;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-left: 8px;
         }
         
         .leaflet-popup-content {
             margin: 15px;
-            line-height: 1.5;
+            min-width: 250px;
         }
         
         .popup-title {
             font-weight: bold;
-            font-size: 15px;
-            margin-bottom: 8px;
+            font-size: 16px;
             color: #333;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 5px;
         }
         
         .popup-info {
             font-size: 13px;
-            color: #666;
+            line-height: 1.6;
+            color: #555;
         }
         
-        .popup-badge {
+        .popup-row {
+            display: flex;
+            margin: 6px 0;
+        }
+        
+        .popup-label {
+            font-weight: 600;
+            color: #667eea;
+            min-width: 80px;
+        }
+        
+        .popup-value {
+            color: #333;
+        }
+        
+        .status-badge {
             display: inline-block;
-            padding: 3px 8px;
-            border-radius: 4px;
+            padding: 4px 10px;
+            border-radius: 12px;
             font-size: 11px;
-            font-weight: bold;
-            margin-top: 5px;
+            font-weight: 600;
+            text-transform: uppercase;
         }
         
-        .badge-sncf {
-            background: #e3f2fd;
-            color: #1976d2;
+        .status-sncf {
+            background: #4CAF50;
+            color: white;
         }
         
-        .badge-concurrent {
-            background: #fff3e0;
-            color: #f57c00;
+        .status-concurrent {
+            background: #2196F3;
+            color: white;
         }
         
-        .badge-encours {
-            background: #f3e5f5;
-            color: #7b1fa2;
+        .status-encours {
+            background: #FF9800;
+            color: white;
         }
         
         #loading {
@@ -126,20 +155,16 @@
             left: 50%;
             transform: translate(-50%, -50%);
             background: white;
-            padding: 30px;
+            padding: 30px 50px;
             border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-            z-index: 10000;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            z-index: 2000;
             text-align: center;
         }
         
-        #loading.hidden {
-            display: none;
-        }
-        
         .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
             border-radius: 50%;
             width: 40px;
             height: 40px;
@@ -155,8 +180,8 @@
 </head>
 <body>
     <div id="header">
-        <h1>🚂 Ouverture à la Concurrence du Rail Français</h1>
-        <p>État des lignes TER et TET (hors Île-de-France et Corse) - Novembre 2025</p>
+        <h1>🚆 Ouverture à la concurrence des lignes ferroviaires françaises</h1>
+        <p>État des lignes TER et TET (hors Île-de-France et Corse) - Source: Contexte, novembre 2025</p>
     </div>
     
     <div id="loading">
@@ -165,316 +190,199 @@
     </div>
     
     <div id="map"></div>
+    
+    <div id="legend">
+        <h3>Légende</h3>
+        <div class="legend-item">
+            <div class="legend-line" style="background: #4CAF50;"></div>
+            <span class="legend-text">Attribué à la SNCF</span>
+            <span class="legend-count" id="count-sncf">0</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-line" style="background: #2196F3;"></div>
+            <span class="legend-text">Attribué à un concurrent</span>
+            <span class="legend-count" id="count-concurrent">0</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-line" style="background: #FF9800;"></div>
+            <span class="legend-text">Mis en concurrence (non attribué)</span>
+            <span class="legend-count" id="count-encours">0</span>
+        </div>
+    </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
     <script>
-        // Configuration des couleurs par statut
-        const COLORS = {
-            'attribue_SNCF': '#1976D2',
-            'attribue_concurrent': '#F57C00',
-            'mis_en_concurrence_pas_attribue': '#7B1FA2'
+        // Initialiser la carte centrée sur la France
+        const map = L.map('map').setView([46.603354, 2.888334], 6);
+        
+        // Ajouter le fond de carte
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 18
+        }).addTo(map);
+        
+        // Définition des couleurs par statut
+        const statusColors = {
+            'attribue_SNCF': '#4CAF50',
+            'attribue_concurrent': '#2196F3',
+            'mis_en_concurrence_pas_attribue': '#FF9800'
         };
         
-        const LABELS = {
+        const statusLabels = {
             'attribue_SNCF': 'Attribué à la SNCF',
             'attribue_concurrent': 'Attribué à un concurrent',
             'mis_en_concurrence_pas_attribue': 'Mis en concurrence (non attribué)'
         };
-
-        // Initialisation de la carte
-        const map = L.map('map').setView([46.8, 2.5], 6);
         
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors',
-            maxZoom: 19
-        }).addTo(map);
-
-        // Création de la légende
-        const legend = L.control({position: 'bottomright'});
-        legend.onAdd = function() {
-            const div = L.DomUtil.create('div', 'legend');
-            div.innerHTML = '<h3>Légende</h3>';
+        // Compteurs
+        const counts = {
+            'attribue_SNCF': 0,
+            'attribue_concurrent': 0,
+            'mis_en_concurrence_pas_attribue': 0
+        };
+        
+        // Fonction pour simplifier les coordonnées (prendre 1 point sur n)
+        function simplifyCoordinates(coords, interval = 5) {
+            if (coords.length <= interval * 2) return coords;
             
-            for (const [status, label] of Object.entries(LABELS)) {
-                div.innerHTML += `
-                    <div class="legend-item">
-                        <div class="legend-line" style="background-color: ${COLORS[status]}"></div>
-                        <span>${label}</span>
+            const simplified = [coords[0]]; // Toujours garder le premier point
+            
+            for (let i = interval; i < coords.length - 1; i += interval) {
+                simplified.push(coords[i]);
+            }
+            
+            simplified.push(coords[coords.length - 1]); // Toujours garder le dernier point
+            return simplified;
+        }
+        
+        // Fonction pour créer une popup
+        function createPopup(ligne) {
+            const operateur = ligne.operateur || 'Non attribué';
+            const statusClass = ligne.statut === 'attribue_SNCF' ? 'status-sncf' : 
+                                ligne.statut === 'attribue_concurrent' ? 'status-concurrent' : 
+                                'status-encours';
+            
+            return `
+                <div class="popup-title">${ligne.relation}</div>
+                <div class="popup-info">
+                    <div class="popup-row">
+                        <span class="popup-label">Région:</span>
+                        <span class="popup-value">${ligne.region}</span>
                     </div>
-                `;
-            }
-            
-            div.innerHTML += '<div class="legend-note">Source: Contexte (17/11/2025)<br>Les tracés sont approximatifs</div>';
-            return div;
-        };
-        legend.addTo(map);
-
-        // Fonction pour créer une approximation de ligne entre deux points
-        function createApproximateLine(pointA, pointB, numPoints = 20) {
-            const coords = [];
-            for (let i = 0; i <= numPoints; i++) {
-                const t = i / numPoints;
-                const lat = pointA[0] + (pointB[0] - pointA[0]) * t;
-                const lng = pointA[1] + (pointB[1] - pointA[1]) * t;
+                    <div class="popup-row">
+                        <span class="popup-label">Type:</span>
+                        <span class="popup-value">${ligne.type_marche}</span>
+                    </div>
+                    <div class="popup-row">
+                        <span class="popup-label">Lot:</span>
+                        <span class="popup-value">${ligne.lot}</span>
+                    </div>
+                    <div class="popup-row">
+                        <span class="popup-label">Statut:</span>
+                        <span class="status-badge ${statusClass}">${statusLabels[ligne.statut]}</span>
+                    </div>
+                    ${operateur !== 'Non attribué' ? `
+                    <div class="popup-row">
+                        <span class="popup-label">Opérateur:</span>
+                        <span class="popup-value">${operateur}</span>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+        
+        // Charger les données
+        fetch('railway_data.json')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Données chargées:', data);
                 
-                // Ajouter une courbure aléatoire pour rendre les lignes plus réalistes
-                const curve = Math.sin(t * Math.PI) * 0.1;
-                coords.push([lat + curve, lng + curve]);
-            }
-            return coords;
-        }
-
-        // Dictionnaire de coordonnées approximatives des villes principales
-        const cityCoords = {
-            'Paris': [48.8566, 2.3522],
-            'Lyon': [45.7640, 4.8357],
-            'Marseille': [43.2965, 5.3698],
-            'Toulouse': [43.6047, 1.4442],
-            'Nice': [43.7102, 7.2620],
-            'Nantes': [47.2184, -1.5536],
-            'Strasbourg': [48.5734, 7.7521],
-            'Montpellier': [43.6108, 3.8767],
-            'Bordeaux': [44.8378, -0.5792],
-            'Lille': [50.6292, 3.0573],
-            'Rennes': [48.1173, -1.6778],
-            'Reims': [49.2583, 4.0317],
-            'Saint-Ã‰tienne': [45.4397, 4.3872],
-            'Le Havre': [49.4944, 0.1079],
-            'Toulon': [43.1242, 5.9280],
-            'Grenoble': [45.1885, 5.7245],
-            'Dijon': [47.3220, 5.0415],
-            'Angers': [47.4784, -0.5632],
-            'Nimes': [43.8367, 4.3601],
-            'Villeurbanne': [45.7714, 4.8801],
-            'Saint-Denis': [48.9362, 2.3574],
-            'Clermont-Ferrand': [45.7772, 3.0870],
-            'Aix-en-Provence': [43.5297, 5.4474],
-            'Tours': [47.3941, 0.6848],
-            'Limoges': [45.8336, 1.2611],
-            'Amiens': [49.8942, 2.2958],
-            'Metz': [49.1193, 6.1757],
-            'BesanÃ§on': [47.2380, 6.0243],
-            'Perpignan': [42.6886, 2.8948],
-            'OrlÃ©ans': [47.9029, 1.9093],
-            'Brest': [48.3905, -4.4861],
-            'Rouen': [49.4432, 1.0993],
-            'Mulhouse': [47.7508, 7.3359],
-            'Caen': [49.1829, -0.3707],
-            'Nancy': [48.6921, 6.1844],
-            'Argenteuil': [48.9474, 2.2476],
-            'Saint-Paul': [48.9631, 2.3270],
-            'Roubaix': [50.6942, 3.1746],
-            'Tourcoing': [50.7244, 3.1610],
-            'Nanterre': [48.8924, 2.2069],
-            'Avignon': [43.9493, 4.8055],
-            'Poitiers': [46.5802, 0.3404],
-            'Aubervilliers': [48.9145, 2.3838],
-            'Dunkerque': [51.0343, 2.3768],
-            'Aulnay-sous-Bois': [48.9336, 2.4955],
-            'Asnières-sur-Seine': [48.9146, 2.2858],
-            'Colombes': [48.9237, 2.2541],
-            'Versailles': [48.8048, 2.1203],
-            'Cherbourg': [49.6337, -1.6220],
-            'Courbevoie': [48.8973, 2.2568],
-            'Rueil-Malmaison': [48.8773, 2.1833],
-            'Champigny-sur-Marne': [48.8173, 2.4995],
-            'Antibes': [43.5808, 7.1239],
-            'Calais': [50.9513, 1.8587],
-            'Cannes': [43.5528, 7.0174],
-            'Le Mans': [48.0077, 0.1984],
-            'Boulogne-Billancourt': [48.8350, 2.2420],
-            'Saint-Pierre': [48.9294, 2.3595],
-            'Beziers': [43.3442, 3.2150],
-            'Saint-Maur-des-FossÃ©s': [48.7998, 2.4978],
-            'Metz': [49.1193, 6.1757],
-            'Orleans': [47.9029, 1.9093],
-            'Saarbrucken': [49.2401, 6.9969],
-            'Karlsruhe': [49.0069, 8.4037],
-            'Trier': [49.7596, 6.6441],
-            'Offenburg': [48.4721, 7.9413],
-            'Neustadt': [49.3503, 8.1367],
-            'Wissembourg': [49.0389, 7.9447],
-            'Lauterbourg': [48.9747, 8.1783],
-            'Worth': [49.0144, 8.2519],
-            'Mullheim': [47.8089, 7.6283],
-            'Epinal': [48.1733, 6.4497],
-            'Saint-Die-des-Vosges': [48.2892, 6.9500],
-            'Selestat': [48.2600, 7.4528],
-            'Molsheim': [48.5403, 7.4922],
-            'Contrexeville': [48.1833, 5.8833],
-            'Charleville-Mezieres': [49.7719, 4.7197],
-            'Sedan': [49.7014, 4.9397],
-            'Givet': [50.1364, 4.8242],
-            'Hirson': [49.9217, 4.0819],
-            'Longuyon': [49.4489, 5.6008],
-            'Longwy': [49.5194, 5.7611],
-            'Thionville': [49.3583, 6.1669],
-            'Chalons-en-Champagne': [48.9536, 4.3631],
-            'Saint-Dizier': [48.6358, 4.9497],
-            'Chaumont': [48.1128, 5.1389],
-            'Culmont-Chalindrey': [47.8653, 5.3800],
-            'Fismes': [49.3094, 3.6808],
-            'Laon': [49.5639, 3.6244],
-            'Chateau-Thierry': [49.0472, 3.4031],
-            'Champagne-Ardenne-TGV': [49.2311, 4.0167],
-            'Epernay': [49.0425, 3.9572],
-            'Beauvais': [49.4294, 2.0808],
-            'Compiegne': [49.4178, 2.8261],
-            'Creil': [49.2578, 2.4739],
-            'Saint-Quentin': [49.8481, 3.2872],
-            'Maubeuge': [50.2778, 3.9731],
-            'Cambrai': [50.1761, 3.2339],
-            'Tergnier': [49.6556, 3.2881],
-            'Albert': [50.0025, 2.6506],
-            'Abbeville': [50.1056, 1.8342],
-            'Le Treport': [50.0611, 1.3742],
-            'Abancourt': [49.6886, 1.7708],
-            'Montdidier': [49.6486, 2.5703],
-            'Roissy': [49.0097, 2.5479],
-            'Saint-Pol-sur-Ternoise': [50.3811, 2.3372],
-            'Arras': [50.2917, 2.7772],
-            'Bethune': [50.5292, 2.6403],
-            'Etaples': [50.5175, 1.6369],
-            'Macon': [46.3064, 4.8283],
-            'Cosne': [47.4136, 2.9272],
-            'Moulins': [46.5650, 3.3333],
-            'Chagny': [46.9094, 4.7503],
-            'Nevers': [46.9900, 3.1597],
-            'Montchanin': [46.7439, 4.4697],
-            'Paray': [46.4522, 4.1189],
-            'Pornic': [47.1161, -2.1028],
-            'Saint-Gilles-Croix-de-Vie': [46.6956, -1.9397],
-            'La Roche-sur-Yon': [46.6703, -1.4269],
-            'Les Sables-d-Olonne': [46.4967, -1.7836],
-            'La Rochelle': [46.1603, -1.1511],
-            'Cholet': [47.0597, -0.8800],
-            'Nort-sur-Erdre': [47.4386, -1.4989],
-            'Chateaubriant': [47.7178, -1.3764],
-            'Clisson': [47.0869, -1.2814],
-            'Vintimille': [43.7895, 7.5085],
-            'Les-Arcs-Draguignan': [43.4636, 6.4792],
-            'Grasse': [43.6586, 6.9225],
-            'Breil-sur-Roya': [43.9353, 7.5167],
-            'Tende': [44.0914, 7.5956],
-            'Aubagne': [43.2928, 5.5706],
-            'Hyeres': [43.1203, 6.1289],
-            'Pertuis': [43.6944, 5.5025],
-            'Gap': [44.5597, 6.0797],
-            'Briancon': [44.8981, 6.6414],
-            'Valence': [44.9333, 4.8925],
-            'Romans': [45.0444, 5.0514],
-            'Miramas': [43.5847, 5.0028],
-            'Coutances': [49.0481, -1.4456],
-            'Saint-Lo': [49.1153, -1.0914],
-            'Evreux': [49.0242, 1.1511],
-            'Lisieux': [49.1469, 0.2281],
-            'Granville': [48.8378, -1.5978],
-            'Trouville-Deauville': [49.3658, 0.0753],
-            'Dives-Cabourg': [49.2858, -0.0975],
-            'Angouleme': [45.6500, 0.1603],
-            'Saintes': [45.7472, -0.6331],
-            'Royan': [45.6250, -1.0281],
-            'Niort': [46.3236, -0.4594],
-            'Chatellerault': [46.8178, 0.5464],
-            'Carcassonne': [43.2130, 2.3491],
-            'Narbonne': [43.1839, 3.0039]
-        };
-
-        // Fonction pour normaliser les noms de villes
-        function normalizeCity(name) {
-            return name
-                .toLowerCase()
-                .normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "")
-                .replace(/[^a-z]/g, '');
-        }
-
-        // Fonction pour trouver les coordonnées d'une ville
-        function findCityCoords(cityName) {
-            const normalized = normalizeCity(cityName);
-            for (const [city, coords] of Object.entries(cityCoords)) {
-                if (normalizeCity(city) === normalized) {
-                    return coords;
-                }
-            }
-            return null;
-        }
-
-        // Fonction pour parser une relation et extraire les villes
-        function parseRelation(relation) {
-            return relation.split('>').map(s => s.trim());
-        }
-
-        // Chargement des données
-        async function loadData() {
-            try {
-                const response = await fetch('etat_ligne.json');
-                const data = await response.json();
+                const geoData = data.geo_data;
+                const etatLignes = data.etat_lignes;
                 
-                // Grouper par statut
-                const groupedLines = {};
-                data.lignes.forEach(ligne => {
-                    if (!groupedLines[ligne.statut]) {
-                        groupedLines[ligne.statut] = [];
-                    }
-                    groupedLines[ligne.statut].push(ligne);
-                });
-
-                // Dessiner les lignes pour chaque statut
-                for (const [statut, lignes] of Object.entries(groupedLines)) {
-                    lignes.forEach(ligne => {
-                        const cities = parseRelation(ligne.relation);
-                        
-                        // Créer une polyligne pour chaque segment
-                        for (let i = 0; i < cities.length - 1; i++) {
-                            const cityA = findCityCoords(cities[i]);
-                            const cityB = findCityCoords(cities[i + 1]);
-                            
-                            if (cityA && cityB) {
-                                const coords = createApproximateLine(cityA, cityB);
-                                
-                                const polyline = L.polyline(coords, {
-                                    color: COLORS[statut],
-                                    weight: 3,
-                                    opacity: 0.7,
-                                    smoothFactor: 1
-                                }).addTo(map);
-
-                                // Popup avec informations
-                                const badgeClass = statut === 'attribue_SNCF' ? 'badge-sncf' : 
-                                                  statut === 'attribue_concurrent' ? 'badge-concurrent' : 
-                                                  'badge-encours';
-                                
-                                polyline.bindPopup(`
-                                    <div class="popup-title">${ligne.relation}</div>
-                                    <div class="popup-info">
-                                        <strong>Région:</strong> ${ligne.region}<br>
-                                        <strong>Type:</strong> ${ligne.type_marche}<br>
-                                        <strong>Lot:</strong> ${ligne.lot}<br>
-                                        ${ligne.operateur ? `<strong>Opérateur:</strong> ${ligne.operateur}<br>` : ''}
-                                        <div class="popup-badge ${badgeClass}">${LABELS[statut]}</div>
-                                    </div>
-                                `);
+                // Pour chaque ligne dans etat_lignes, on essaie de trouver une correspondance géographique
+                // Comme on n'a pas de mapping direct, on va afficher toutes les lignes de manière générique
+                
+                // Créer des couches pour chaque statut
+                const layers = {
+                    'attribue_SNCF': L.layerGroup().addTo(map),
+                    'attribue_concurrent': L.layerGroup().addTo(map),
+                    'mis_en_concurrence_pas_attribue': L.layerGroup().addTo(map)
+                };
+                
+                // Mapping approximatif région JSON -> région Excel
+                const regionMapping = {
+                    'Bourgogne-Franche-Comté': ['Bourgogne', 'Franche-Comté'],
+                    'Grand Est': ['Alsace', 'Champagne-Ardenne', 'Lorraine'],
+                    'Hauts-de-France': ['Nord-Pas-de-Calais', 'Picardie'],
+                    'Normandie': ['Haute-Normandie', 'Basse-Normandie'],
+                    'Nouvelle-Aquitaine': ['Aquitaine', 'Limousin', 'Poitou-Charentes'],
+                    'Provence-Alpes-Côte d\'Azur': ['Provence-Alpes-Côte-d\'Azur'],
+                    'Pays de la Loire': ['Pays de la Loire']
+                };
+                
+                // Pour chaque ligne dans etat_lignes
+                etatLignes.forEach(ligne => {
+                    const regions = regionMapping[ligne.region] || [ligne.region];
+                    
+                    // Trouver toutes les géométries correspondant aux régions
+                    let lignesGeo = [];
+                    Object.entries(geoData).forEach(([code, segments]) => {
+                        segments.forEach(segment => {
+                            if (regions.includes(segment.region)) {
+                                lignesGeo.push(segment.coordinates);
                             }
-                        }
+                        });
                     });
-                }
-
-                document.getElementById('loading').classList.add('hidden');
+                    
+                    // Si on a trouvé des géométries, afficher quelques unes représentatives
+                    if (lignesGeo.length > 0) {
+                        // Prendre un échantillon pour ne pas surcharger la carte
+                        const sample = Math.min(3, lignesGeo.length);
+                        for (let i = 0; i < sample; i++) {
+                            const idx = Math.floor(i * lignesGeo.length / sample);
+                            const coords = simplifyCoordinates(lignesGeo[idx], 5);
+                            
+                            // Convertir les coordonnées [lon, lat] en [lat, lon] pour Leaflet
+                            const latLngs = coords.map(c => [c[1], c[0]]);
+                            
+                            const polyline = L.polyline(latLngs, {
+                                color: statusColors[ligne.statut],
+                                weight: 3,
+                                opacity: 0.7
+                            });
+                            
+                            polyline.bindPopup(createPopup(ligne));
+                            polyline.addTo(layers[ligne.statut]);
+                        }
+                        
+                        counts[ligne.statut]++;
+                    }
+                });
                 
-            } catch (error) {
+                // Mettre à jour les compteurs
+                document.getElementById('count-sncf').textContent = counts['attribue_SNCF'];
+                document.getElementById('count-concurrent').textContent = counts['attribue_concurrent'];
+                document.getElementById('count-encours').textContent = counts['mis_en_concurrence_pas_attribue'];
+                
+                // Cacher le loading
+                document.getElementById('loading').style.display = 'none';
+                
+                console.log('Carte chargée avec succès!');
+                console.log('Compteurs:', counts);
+            })
+            .catch(error => {
                 console.error('Erreur lors du chargement des données:', error);
                 document.getElementById('loading').innerHTML = `
                     <div style="color: #d32f2f;">
-                        ⚠️ Erreur de chargement<br>
-                        <small>Vérifiez que le fichier etat_ligne.json est accessible</small>
+                        <h3>Erreur de chargement</h3>
+                        <p>Impossible de charger les données ferroviaires.</p>
+                        <p style="font-size: 12px; margin-top: 10px;">${error.message}</p>
                     </div>
                 `;
-            }
-        }
-
-        // Démarrer le chargement
-        loadData();
+            });
     </script>
 </body>
 </html>
