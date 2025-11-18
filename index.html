@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ouverture du rail à la concurrence en France</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <title>Ouverture à la Concurrence - Lignes Ferroviaires</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
     <style>
         * {
             margin: 0;
@@ -14,569 +13,468 @@
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #f5f5f5;
+        }
+        
+        #header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
-        }
-        
-        header {
-            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
             color: white;
-            padding: 30px;
-            text-align: center;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         
-        h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        #header h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
         }
         
-        .subtitle {
-            font-size: 1.1em;
+        #header p {
+            font-size: 14px;
             opacity: 0.9;
-            font-weight: 300;
-        }
-        
-        .main-content {
-            display: flex;
-            height: calc(100vh - 200px);
-        }
-        
-        .sidebar {
-            width: 350px;
-            background: #f8f9fa;
-            padding: 25px;
-            overflow-y: auto;
-            border-right: 1px solid #dee2e6;
         }
         
         #map {
-            flex: 1;
-            height: 100%;
+            height: calc(100vh - 120px);
+            width: 100%;
         }
         
         .legend {
             background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            margin-bottom: 25px;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            max-width: 280px;
         }
         
         .legend h3 {
-            font-size: 1.3em;
-            margin-bottom: 15px;
-            color: #2c3e50;
-            border-bottom: 3px solid #667eea;
-            padding-bottom: 10px;
+            margin: 0 0 12px 0;
+            font-size: 16px;
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 8px;
         }
         
         .legend-item {
             display: flex;
             align-items: center;
-            margin: 12px 0;
-            padding: 8px;
-            border-radius: 6px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        
-        .legend-item:hover {
-            background: #e9ecef;
-            transform: translateX(5px);
-        }
-        
-        .legend-color {
-            width: 40px;
-            height: 4px;
-            margin-right: 12px;
-            border-radius: 2px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        
-        .legend-label {
-            flex: 1;
-            font-size: 0.95em;
-            font-weight: 500;
-        }
-        
-        .legend-count {
-            background: #667eea;
-            color: white;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            font-weight: bold;
-        }
-        
-        .stats {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        
-        .stats h3 {
-            font-size: 1.3em;
-            margin-bottom: 15px;
-            color: #2c3e50;
-            border-bottom: 3px solid #764ba2;
-            padding-bottom: 10px;
-        }
-        
-        .stat-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px;
             margin: 8px 0;
-            background: #f8f9fa;
-            border-radius: 6px;
-            border-left: 4px solid #667eea;
+            font-size: 13px;
+            color: #555;
         }
         
-        .stat-label {
-            font-weight: 500;
-            color: #495057;
+        .legend-line {
+            width: 30px;
+            height: 4px;
+            margin-right: 10px;
+            border-radius: 2px;
         }
         
-        .stat-value {
-            font-weight: bold;
-            color: #667eea;
-            font-size: 1.1em;
+        .legend-note {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #eee;
+            font-size: 11px;
+            color: #777;
+            font-style: italic;
         }
         
         .leaflet-popup-content {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 15px;
+            line-height: 1.5;
         }
         
         .popup-title {
             font-weight: bold;
-            font-size: 1.1em;
-            color: #2c3e50;
+            font-size: 15px;
             margin-bottom: 8px;
-            border-bottom: 2px solid #667eea;
-            padding-bottom: 5px;
+            color: #333;
         }
         
         .popup-info {
-            margin: 6px 0;
-            color: #495057;
+            font-size: 13px;
+            color: #666;
         }
         
-        .popup-label {
-            font-weight: 600;
-            color: #6c757d;
+        .popup-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-top: 5px;
         }
         
-        @media (max-width: 768px) {
-            .main-content {
-                flex-direction: column;
-            }
-            
-            .sidebar {
-                width: 100%;
-                height: 300px;
-            }
-            
-            #map {
-                height: 400px;
-            }
+        .badge-sncf {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        
+        .badge-concurrent {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+        
+        .badge-encours {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+        
+        #loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            z-index: 10000;
+            text-align: center;
+        }
+        
+        #loading.hidden {
+            display: none;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🚂 Ouverture du rail à la concurrence</h1>
-            <p class="subtitle">Lignes ferroviaires TER et TET - État des lieux au 17/11/2025</p>
-        </header>
-        
-        <div class="main-content">
-            <div class="sidebar">
-                <div class="legend">
-                    <h3>📊 Légende</h3>
-                    <div class="legend-item" data-status="attribue_SNCF">
-                        <div class="legend-color" style="background: #3498db;"></div>
-                        <div class="legend-label">Attribué SNCF</div>
-                        <div class="legend-count" id="count-sncf">0</div>
-                    </div>
-                    <div class="legend-item" data-status="attribue_concurrent">
-                        <div class="legend-color" style="background: #e74c3c;"></div>
-                        <div class="legend-label">Attribué concurrent</div>
-                        <div class="legend-count" id="count-concurrent">0</div>
-                    </div>
-                    <div class="legend-item" data-status="mis_en_concurrence_pas_attribue">
-                        <div class="legend-color" style="background: #f39c12;"></div>
-                        <div class="legend-label">Mis en concurrence (non attribué)</div>
-                        <div class="legend-count" id="count-concurrence">0</div>
-                    </div>
-                </div>
-                
-                <div class="stats">
-                    <h3>📈 Statistiques</h3>
-                    <div class="stat-item">
-                        <span class="stat-label">Total lignes</span>
-                        <span class="stat-value" id="total-lignes">0</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Lignes TER</span>
-                        <span class="stat-value" id="total-ter">0</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Lignes TET</span>
-                        <span class="stat-value" id="total-tet">0</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Régions concernées</span>
-                        <span class="stat-value" id="total-regions">0</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div id="map"></div>
-        </div>
+    <div id="header">
+        <h1>🚂 Ouverture à la Concurrence du Rail Français</h1>
+        <p>État des lignes TER et TET (hors Île-de-France et Corse) - Novembre 2025</p>
     </div>
+    
+    <div id="loading">
+        <div class="spinner"></div>
+        <div>Chargement de la carte...</div>
+    </div>
+    
+    <div id="map"></div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
     <script>
-        // Coordonnées approximatives des principales villes françaises
-        const villes = {
-            "Paris": [48.8566, 2.3522],
-            "Marseille": [43.2965, 5.3698],
-            "Lyon": [45.7640, 4.8357],
-            "Toulouse": [43.6047, 1.4442],
-            "Nice": [43.7102, 7.2620],
-            "Nantes": [47.2184, -1.5536],
-            "Strasbourg": [48.5734, 7.7521],
-            "Montpellier": [43.6108, 3.8767],
-            "Bordeaux": [44.8378, -0.5792],
-            "Lille": [50.6292, 3.0573],
-            "Rennes": [48.1173, -1.6778],
-            "Reims": [49.2583, 4.0317],
-            "Le Havre": [49.4944, 0.1079],
-            "Saint-Étienne": [45.4397, 4.3872],
-            "Toulon": [43.1242, 5.9280],
-            "Grenoble": [45.1885, 5.7245],
-            "Dijon": [47.3220, 5.0415],
-            "Angers": [47.4784, -0.5632],
-            "Nîmes": [43.8367, 4.3601],
-            "Villeurbanne": [45.7662, 4.8792],
-            "Clermont-Ferrand": [45.7772, 3.0870],
-            "Aix-en-Provence": [43.5297, 5.4474],
-            "Brest": [48.3904, -4.4861],
-            "Tours": [47.3941, 0.6848],
-            "Amiens": [49.8941, 2.2958],
-            "Limoges": [45.8336, 1.2611],
-            "Annecy": [45.8992, 6.1294],
-            "Perpignan": [42.6886, 2.8948],
-            "Besançon": [47.2380, 6.0243],
-            "Orléans": [47.9029, 1.9093],
-            "Metz": [49.1193, 6.1757],
-            "Rouen": [49.4432, 1.0993],
-            "Mulhouse": [47.7508, 7.3359],
-            "Caen": [49.1829, -0.3707],
-            "Nancy": [48.6921, 6.1844],
-            "Argenteuil": [48.9474, 2.2475],
-            "Montreuil": [48.8634, 2.4431],
-            "Saint-Denis": [48.9356, 2.3539],
-            "Roubaix": [50.6942, 3.1746],
-            "Tourcoing": [50.7236, 3.1609],
-            "Avignon": [43.9493, 4.8055],
-            "Poitiers": [46.5802, 0.3404],
-            "Dunkerque": [51.0343, 2.3768],
-            "Créteil": [48.7904, 2.4555],
-            "Pau": [43.2951, -0.3708],
-            "Calais": [50.9513, 1.8587],
-            "La Rochelle": [46.1603, -1.1511],
-            "Cannes": [43.5528, 7.0174],
-            "Antibes": [43.5808, 7.1251],
-            "Colmar": [48.0794, 7.3581],
-            "Bourges": [47.0842, 2.3988],
-            "Quimper": [47.9960, -4.0970],
-            "Valence": [44.9334, 4.8924],
-            "Troyes": [48.2973, 4.0744],
-            "Cholet": [47.0586, -0.8798],
-            "Niort": [46.3236, -0.4593],
-            "Chambéry": [45.5646, 5.9178],
-            "Lorient": [47.7482, -3.3703],
-            "Beauvais": [49.4295, 2.0807],
-            "Épinal": [48.1747, 6.4502],
-            "Charleville-Mézières": [49.7719, 4.7196],
-            "Laon": [49.5637, 3.6250],
-            "Saint-Quentin": [49.8484, 3.2872],
-            "Cherbourg": [49.6337, -1.6222],
-            "Chateaubriand": [47.7167, -1.3761],
-            "Clisson": [47.0867, -1.2819],
-            "Pornic": [47.1156, -2.1025],
-            "LaRoche-sur-yon": [46.6703, -1.4269],
-            "LesSablesd'olonne": [46.4967, -1.7833],
-            "Gap": [44.5594, 6.0797],
-            "Briançon": [44.8978, 6.6431],
-            "Vintimille": [43.7896, 7.5081],
-            "Grasse": [43.6584, 6.9222],
-            "Tende": [44.0889, 7.5942],
-            "Hyères": [43.1204, 6.1286],
-            "Pertuis": [43.6942, 5.5022],
-            "Miramas": [43.5847, 5.0036],
-            "Carpentras": [44.0556, 5.0486],
-            "Coutances": [49.0478, -1.4456],
-            "Saint-Lô": [49.1150, -1.0914],
-            "Evreux": [49.0247, 1.1510],
-            "Lisieux": [49.1467, 0.2256],
-            "Granville": [48.8372, -1.5973],
-            "Trouville-Deauville": [49.3667, 0.0778],
-            "Dives-Cabourg": [49.2867, -0.0989],
-            "Angoulême": [45.6484, 0.1562],
-            "Saintes": [45.7467, -0.6333],
-            "Royan": [45.6228, -1.0281],
-            "Châtellerault": [46.8178, 0.5461],
-            "Rochefort": [45.9367, -0.9608],
-            "Mâcon": [46.3067, 4.8314],
-            "Cosne": [47.4092, 2.9270],
-            "Moulins": [46.5667, 3.3333],
-            "Chagny": [46.9097, 4.7517],
-            "Nevers": [46.9897, 3.1603],
-            "Montchanin": [46.7497, 4.4728],
-            "Paray": [46.4519, 4.1194],
-            "Contrexville": [48.1828, 5.8914],
-            "Saint-Die-des-vosges": [48.2897, 6.9497],
-            "Sélestat": [48.2600, 7.4528],
-            "Molsheim": [48.5433, 7.4928],
-            "Trier": [49.7500, 6.6371],
-            "Saarbrücken": [49.2333, 6.9667],
-            "Wissembourg": [49.0386, 7.9447],
-            "Neustadt": [49.3500, 8.1333],
-            "Lauterbourg": [48.9756, 8.1778],
-            "Wörth": [48.9333, 8.2500],
-            "Karlsruhe": [49.0069, 8.4037],
-            "Offenburg": [48.4722, 7.9403],
-            "Müllheim": [47.8094, 7.6289],
-            "Epernay": [49.0431, 3.9597],
-            "ChâteauThierry": [49.0458, 3.4033],
-            "ChampagneArdenneTGV": [49.2317, 4.0475],
-            "Sedan": [49.7019, 4.9392],
-            "Givet": [50.1378, 4.8264],
-            "Hirson": [49.9214, 4.0817],
-            "Longuyon": [49.4475, 5.5997],
-            "Longwy": [49.5189, 5.7606],
-            "Thionville": [49.3589, 6.1653],
-            "Châlons-en-Champagne": [48.9533, 4.3631],
-            "Saint-Dizier": [48.6381, 4.9497],
-            "Chaumont": [48.1119, 5.1392],
-            "Culmont-Chalindrey": [47.8225, 5.3306],
-            "Fismes": [49.3092, 3.6800],
-            "Tergnier": [49.6567, 3.2967],
-            "Albert": [50.0025, 2.6519],
-            "Abbeville": [50.1058, 1.8336],
-            "Abancourt": [49.6908, 1.7739],
-            "LeTréport": [50.0619, 1.3744],
-            "Creil": [49.2586, 2.4736],
-            "Montdidier": [49.6472, 2.5694],
-            "Compiègne": [49.4177, 2.8260],
-            "Roissy": [49.0097, 2.5479],
-            "Saint-pol-sur-ternoise": [50.3814, 2.3364],
-            "Arras": [50.2919, 2.7778],
-            "Béthune": [50.5292, 2.6403],
-            "Etaples": [50.5181, 1.6431],
-            "Nort-sur-Erdre": [47.4389, -1.4981],
-            "Saint-Gilles-Croix-de-vie": [46.6972, -1.9392],
-            "LesArcsDraguignan": [43.4644, 6.4789],
-            "Breil-sur-Roya": [43.9372, 7.5150],
-            "Aubagne": [43.2928, 5.5708],
-            "Romans": [45.0444, 5.0514],
-            "Maubeuge": [50.2778, 3.9731],
-            "Cambrai": [50.1761, 3.2347]
+        // Configuration des couleurs par statut
+        const COLORS = {
+            'attribue_SNCF': '#1976D2',
+            'attribue_concurrent': '#F57C00',
+            'mis_en_concurrence_pas_attribue': '#7B1FA2'
         };
-
-        // Fonction pour obtenir les coordonnées d'une ville
-        function getCoords(nomVille) {
-            const villeNormalisee = Object.keys(villes).find(v => 
-                v.toLowerCase() === nomVille.toLowerCase() || 
-                nomVille.toLowerCase().includes(v.toLowerCase()) ||
-                v.toLowerCase().includes(nomVille.toLowerCase())
-            );
-            return villes[villeNormalisee] || null;
-        }
-
-        // Couleurs selon le statut
-        const couleurs = {
-            "attribue_SNCF": "#3498db",
-            "attribue_concurrent": "#e74c3c",
-            "mis_en_concurrence_pas_attribue": "#f39c12"
+        
+        const LABELS = {
+            'attribue_SNCF': 'Attribué à la SNCF',
+            'attribue_concurrent': 'Attribué à un concurrent',
+            'mis_en_concurrence_pas_attribue': 'Mis en concurrence (non attribué)'
         };
 
         // Initialisation de la carte
-        const map = L.map('map').setView([46.603354, 1.888334], 6);
+        const map = L.map('map').setView([46.8, 2.5], 6);
         
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors',
-            maxZoom: 18
+            maxZoom: 19
         }).addTo(map);
 
-        // Données intégrées directement
-        const data = {
-            "meta": {
-                "description": "Lignes ferroviaires mentionnées dans l'infographie Contexte sur l'ouverture à la concurrence (TER + TET, hors Île-de-France et Corse).",
-                "source": "Contexte, article 'Ouverture du rail à la concurrence : les régions en ordre dispersé'",
-                "date_article": "2025-11-17"
-            },
-            "lignes": [
-                {"region": "Bourgogne-Franche-Comté", "type_marche": "TER", "lot": "Bourgogne-Ouest-Nivernais", "relation": "Dijon>Mâcon", "statut": "attribue_SNCF", "operateur": "SNCF"},
-                {"region": "Bourgogne-Franche-Comté", "type_marche": "TER", "lot": "Bourgogne-Ouest-Nivernais", "relation": "Cosne>Moulins", "statut": "attribue_SNCF", "operateur": "SNCF"},
-                {"region": "Bourgogne-Franche-Comté", "type_marche": "TER", "lot": "Bourgogne-Ouest-Nivernais", "relation": "Chagny>Nevers", "statut": "attribue_SNCF", "operateur": "SNCF"},
-                {"region": "Bourgogne-Franche-Comté", "type_marche": "TER", "lot": "Bourgogne-Ouest-Nivernais", "relation": "Montchanin>Paray", "statut": "attribue_SNCF", "operateur": "SNCF"},
-                {"region": "Bourgogne-Franche-Comté", "type_marche": "TER", "lot": "Bourgogne-Ouest-Nivernais", "relation": "Lyon>Moulins", "statut": "attribue_SNCF", "operateur": "SNCF"},
-                {"region": "Grand Est", "type_marche": "TER", "lot": "Nancy-Contrexéville", "relation": "Nancy>Contrexville", "statut": "attribue_concurrent", "operateur": "Transdev (groupement NGE/Banque des Territoires)"},
-                {"region": "Grand Est", "type_marche": "TER", "lot": "Bruche-Piémont-Vosges", "relation": "Épinal>Saint-Die-des-vosges>Strasbourg", "statut": "mis_en_concurrence_pas_attribue", "operateur": ""},
-                {"region": "Grand Est", "type_marche": "TER", "lot": "Bruche-Piémont-Vosges", "relation": "Sélestat>Molsheim>Strasbourg", "statut": "mis_en_concurrence_pas_attribue", "operateur": ""},
-                {"region": "Grand Est", "type_marche": "TER", "lot": "Lot transfrontalier", "relation": "Metz>Trier", "statut": "mis_en_concurrence_pas_attribue", "operateur": ""},
-                {"region": "Grand Est", "type_marche": "TER", "lot": "Lot transfrontalier", "relation": "Metz>Saarbrücken", "statut": "mis_en_concurrence_pas_attribue", "operateur": ""},
-                {"region": "Grand Est", "type_marche": "TER", "lot": "Lot transfrontalier", "relation": "Strasbourg>Saarbrücken", "statut": "mis_en_concurrence_pas_attribue", "operateur": ""},
-                {"region": "Grand Est", "type_marche": "TER", "lot": "Lot transfrontalier", "relation": "Strasbourg>Wissembourg>Neustadt", "statut": "mis_en_concurrence_pas_attribue", "operateur": ""},
-                {"region": "Grand Est", "type_marche": "TER", "lot": "Lot transfrontalier", "relation": "Strasbourg>Lauterbourg>Wörth>Karlsruhe", "statut": "mis_en_concurrence_pas_attribue", "operateur": ""},
-                {"region": "Grand Est", "type_marche": "TER", "lot": "Lot transfrontalier", "relation": "Strasbourg>Offenburg", "statut": "mis_en_concurrence_pas_attribue", "operateur": ""},
-                {"region": "Grand Est", "type_marche": "TER", "lot": "Lot transfrontalier", "relation": "Mulhouse>Müllheim", "statut": "mis_en_concurrence_pas_attribue", "operateur": ""},
-                {"region": "Grand Est", "type_marche": "TER", "lot": "Étoile de Reims", "relation": "Epernay>Reims>ChâteauThierry", "statut": "mis_en_concurrence_pas_attribue", "operateur": ""},
-                {"region": "Grand Est", "type_marche": "TER", "lot": "Étoile de Reims", "relation": "ChampagneArdenneTGV>Reims>Charleville-Mézières>Sedan", "statut": "mis_en_concurrence_pas_attribue", "operateur": ""},
-                {"region": "Grand Est", "type_marche": "TER", "lot": "Étoile de Reims", "relation": "Charleville-Mézières>Givet", "statut": "mis_en_concurrence_pas_attribue", "operateur": ""},
-                {"region": "Grand Est", "type_marche": "TER", "lot": "Étoile de Reims", "relation": "Charleville-mézières>Hirson>Longuyon>Longwy", "statut": "mis_en_concurrence_pas_attribue", "operateur": ""},
-                {"region": "Grand Est", "type_marche": "TER", "lot": "Étoile de Reims", "relation": "Reims>Châlons-en-Champagne>Saint-Dizier>Chaumont>Culmont-Chalindrey>Dijon", "statut": "mis_en_concurrence_pas_attribue", "operateur": ""},
-                {"region": "Grand Est", "type_marche": "TER", "lot": "Étoile de Reims", "relation": "Reims>Fismes", "statut": "mis_en_concurrence_pas_attribue", "operateur": ""},
-                {"region": "Grand Est", "type_marche": "TER", "lot": "Étoile de Reims", "relation": "Reims>Laon", "statut": "mis_en_concurrence_pas_attribue", "operateur": ""},
-                {"region": "Hauts-de-France", "type_marche": "TER", "lot": "Étoile d'Amiens", "relation": "Amiens>Tergnier>Laon", "statut": "attribue_SNCF", "operateur": "SNCF"},
-                {"region": "Hauts-de-France", "type_marche": "TER", "lot": "Étoile d'Amiens", "relation": "Amiens>Saint-Quentin", "statut": "attribue_SNCF", "operateur": "SNCF"},
-                {"region": "Hauts-de-France", "type_marche": "TER", "lot": "Étoile d'Amiens", "relation": "Amiens>Albert>Lille", "statut": "attribue_SNCF", "operateur": "SNCF"},
-                {"region": "Hauts-de-France", "type_marche": "TER", "lot": "Étoile d'Amiens", "relation": "Amiens>Abbeville", "statut": "attribue_SNCF", "operateur": "SNCF"},
-                {"region": "Hauts-de-France", "type_marche": "TER", "lot": "Étoile d'Amiens", "relation": "Beauvais>Abancourt>LeTréport", "statut": "attribue_SNCF", "operateur": "SNCF"},
-                {"region": "Hauts-de-France", "type_marche": "TER", "lot": "Étoile d'Amiens", "relation": "Amiens>Creil", "statut": "attribue_SNCF", "operateur": "SNCF"},
-                {"region": "Hauts-de-France", "type_marche": "TER", "lot": "Étoile d'Amiens", "relation": "Amiens>Montdidier>Compiègne", "statut": "attribue_SNCF", "operateur": "SNCF"},
-                {"region": "Hauts-de-France", "type_marche": "TER", "lot": "Étoile d'Amiens", "relation": "Amiens>Rouen", "statut": "attribue_SNCF", "operateur": "SNCF"},
-                {"region": "Hauts-de-France", "type_marche": "TER", "lot": "Radiales parisiennes", "relation": "Paris>Creil>Amiens>Calais", "statut": "mis_en_concurrence_pas_attribue", "operateur": ""},
-                {"region": "Hauts-de-France", "type_marche": "TER", "lot": "Radiales parisiennes", "relation": "Paris>Creil>Compiègne>Saint-Quentin>Maubeuge", "statut": "mis_en_concurrence_pas_attribue", "operateur": ""},
-                {"region": "Hauts-de-France", "type_marche": "TER", "lot": "Radiales parisiennes", "relation": "Paris>Laon", "statut": "mis_en_concurrence_pas_attribue", "operateur": ""},
-                {"region": "Hauts-de-France", "type_marche": "TER", "lot": "Radiales parisiennes", "relation": "Beauvais>Paris", "statut": "mis_en_concurrence_pas_attribue", "operateur": ""},
-                {"region": "Hauts-de-France", "type_marche": "TER", "lot": "Radiales parisiennes", "relation": "Amiens>Creil>Roissy", "statut": "mis_en_concurrence_pas_attribue", "operateur": ""},
-                {"region": "Hauts-de-France", "type_marche": "TER", "lot": "Radiales parisiennes", "relation": "Saint-Quentin>Creil>Roissy", "statut": "mis_en_concurrence_pas_attribue", "operateur": ""},
-                {"region": "Hauts-de-France", "type_marche": "TER", "lot": "Étoile de Saint-Pol-sur-Ternoise", "relation": "Saint-pol-sur-ternoise>Arras", "statut": "mis_en_concurrence_pas_attribue", "operateur": ""},
-                {"region": "Hauts-de-France", "type_marche": "TER", "lot": "Étoile de Saint-Pol-sur-Ternoise", "relation": "Saint-pol-sur-ternoise>Béthune", "statut": "mis_en_concurrence_pas_attribue", "operateur": ""},
-                {"region": "Hauts-de-France", "type_marche": "TER", "lot": "Étoile de Saint-Pol-sur-Ternoise", "relation": "Saint-pol-sur-ternoise>Etaples", "statut": "mis_en_concurrence_pas_attribue", "operateur": ""},
-                {"region": "Pays de la Loire", "type_marche": "TER", "lot": "Tram-train", "relation": "Nantes>Nort-sur-Erdre", "statut": "attribue_SNCF", "operateur": "SNCF"},
-                {"region": "Pays de la Loire", "type_marche": "TER", "lot": "Tram-train", "relation": "Nantes>Chateaubriand", "statut": "attribue_SNCF", "operateur": "SNCF"},
-                {"region": "Pays de la Loire", "type_marche": "TER", "lot": "Tram-train", "relation": "Nantes>Clisson", "statut": "attribue_SNCF", "operateur": "SNCF"},
-                {"region": "Pays de la Loire", "type_marche": "TER", "lot": "Sud Loire", "relation": "Nantes>Pornic", "statut": "attribue_SNCF", "operateur": "SNCF"},
-                {"region": "Pays de la Loire", "type_marche": "TER", "lot": "Sud Loire", "relation": "Nantes>Saint-Gilles-Croix-de-vie", "statut": "attribue_SNCF", "operateur": "SNCF"},
-                {"region": "Pays de la Loire", "type_marche": "TER", "lot": "Sud Loire", "relation": "Nantes>LaRoche-sur-yon>LesSablesd'olonne", "statut": "attribue_SNCF", "operateur": "SNCF"},
-                {"region": "Pays de la Loire", "type_marche": "TER", "lot": "Sud Loire", "relation": "Nantes>LaRochelle", "statut": "attribue_SNCF", "operateur": "SNCF"},
-                {"region": "Pays de la Loire", "type_marche": "TER", "lot": "Sud Loire", "relation": "Nantes>Cholet", "statut": "attribue_SNCF", "operateur": "SNCF"},
-                {"region": "Pays de la Loire", "type_marche": "TER", "lot": "Sud Loire", "relation": "Angers>Cholet", "statut": "attribue_SNCF", "operateur": "SNCF"},
-                {"region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Intermétropoles", "relation": "Marseille>Toulon>Nice", "statut": "attribue_concurrent", "operateur": "Transdev"},
-                {"region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Azur", "relation": "LesArcsDraguignan>Nice>Vintimille", "statut": "attribue_SNCF", "operateur": "SNCF"},
-                {"region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Azur", "relation": "Cannes>Grasse", "statut": "attribue_SNCF", "operateur": "SNCF"},
-                {"region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Azur", "relation": "Nice>Breil-sur-Roya>Tende", "statut": "attribue_SNCF", "operateur": "SNCF"},
-                {"region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Lot 3", "relation": "Marseille>Aubagne>Toulon>Hyères", "statut": "attribue_SNCF", "operateur": "SNCF"},
-                {"region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Lot 3", "relation": "Marseille>Toulon>LesArcsDraguignan", "statut": "attribue_SNCF", "operateur": "SNCF"},
-                {"region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Lot 3", "relation": "Marseille>Aix-en-provence>Pertuis", "statut": "attribue_SNCF", "operateur": "SNCF"},
-                {"region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Lot 3", "relation": "Marseille>Gap>Briançon", "statut": "attribue_SNCF", "operateur": "SNCF"},
-                {"region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Lot 3", "relation": "Briançon>Gap>Valence>Romans", "statut": "attribue_SNCF", "operateur": "SNCF"},
-                {"region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Lot 4", "relation": "Marseille>Miramas", "statut": "mis_en_concurrence_pas_attribue", "operateur": ""},
-                {"region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Lot 4", "relation": "Marseille>Avignon", "statut": "mis_en_concurrence_pas_attribue", "operateur": ""},
-                {"region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Lot 4", "relation": "Marseille>Avignon>Valence>Lyon", "statut": "mis_en_concurrence_pas_attribue", "operateur": ""},
-                {"region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Lot 4", "relation": "Marseille>Nîmes>Montpellier", "statut": "mis_en_concurrence_pas_attribue", "operateur": ""},
-                {"region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Lot 4", "relation": "Avignon>Carpentras", "statut": "mis_en_concurrence_pas_attribue", "operateur": ""},
-                {"region": "Normandie", "type_marche": "TER", "lot": "Étoile de Caen", "relation": "Caen>Coutances", "statut": "attribue_concurrent", "operateur": "RATP"},
-                {"region": "Normandie", "type_marche": "TER", "lot": "Étoile de Caen", "relation": "Caen>Saint-Lô", "statut": "attribue_concurrent", "operateur": "RATP"},
-                {"region": "Normandie", "type_marche": "TER", "lot": "Étoile de Caen", "relation": "Caen>Evreux", "statut": "attribue_concurrent", "operateur": "RATP"},
-                {"region": "Normandie", "type_marche": "TER", "lot": "Étoile de Caen", "relation": "Caen>Cherbourg", "statut": "attribue_concurrent", "operateur": "RATP"},
-                {"region": "Normandie", "type_marche": "TER", "lot": "Étoile de Caen", "relation": "Caen>Rouen", "statut": "attribue_concurrent", "operateur": "RATP"},
-                {"region": "Normandie", "type_marche": "TER", "lot": "Étoile de Caen", "relation": "Caen>Lisieux", "statut": "attribue_concurrent", "operateur": "RATP"},
-                {"region": "Normandie", "type_marche": "TER", "lot": "Étoile de Caen", "relation": "Caen>Granville", "statut": "attribue_concurrent", "operateur": "RATP"},
-                {"region": "Normandie", "type_marche": "TER", "lot": "Étoile de Caen", "relation": "Caen>Rennes", "statut": "attribue_concurrent", "operateur": "RATP"},
-                {"region": "Normandie", "type_marche": "TER", "lot": "Étoile de Caen", "relation": "Lisieux>Trouville-Deauville", "statut": "attribue_concurrent", "operateur": "RATP"},
-                {"region": "Normandie", "type_marche": "TER", "lot": "Étoile de Caen", "relation": "Trouville-Deauville>Dives-Cabourg", "statut": "attribue_concurrent", "operateur": "RATP"},
-                {"region": "Nouvelle-Aquitaine", "type_marche": "TER", "lot": "Poitou-charentes", "relation": "LaRochelle>Rochefort>Saintes>Bordeaux", "statut": "mis_en_concurrence_pas_attribue", "operateur": ""},
-                {"region": "Nouvelle-Aquitaine", "type_marche": "TER", "lot": "Poitou-charentes", "relation": "Angoulême>Saintes>Royan", "statut": "mis_en_concurrence_pas_attribue", "operateur": ""},
-                {"region": "Nouvelle-Aquitaine", "type_marche": "TER", "lot": "Poitou-charentes", "relation": "Niort>Saintes>Royan", "statut": "mis_en_concurrence_pas_attribue", "operateur": ""},
-                {"region": "Nouvelle-Aquitaine", "type_marche": "TER", "lot": "Poitou-charentes", "relation": "Poitiers>Niort>LaRochelle", "statut": "mis_en_concurrence_pas_attribue", "operateur": ""},
-                {"region": "Nouvelle-Aquitaine", "type_marche": "TER", "lot": "Poitou-charentes", "relation": "Tours>Châtellerault>Poitiers", "statut": "mis_en_concurrence_pas_attribue", "operateur": ""},
-                {"region": "Nouvelle-Aquitaine", "type_marche": "TER", "lot": "Poitou-charentes", "relation": "Poitiers>Angoulême", "statut": "mis_en_concurrence_pas_attribue", "operateur": ""},
-                {"region": "Nouvelle-Aquitaine", "type_marche": "TER", "lot": "Poitou-charentes", "relation": "Châtellerault>Poitiers>Angoulême", "statut": "mis_en_concurrence_pas_attribue", "operateur": ""},
-                {"region": "Nouvelle-Aquitaine", "type_marche": "TER", "lot": "Poitou-charentes", "relation": "Angoulême>Bordeaux", "statut": "mis_en_concurrence_pas_attribue", "operateur": ""},
-                {"region": "France entière (État)", "type_marche": "TET", "lot": "Bordeaux, Nantes, Lyon", "relation": "Nantes>Bordeaux", "statut": "attribue_SNCF", "operateur": "SNCF"},
-                {"region": "France entière (État)", "type_marche": "TET", "lot": "Bordeaux, Nantes, Lyon", "relation": "Nantes>Lyon", "statut": "attribue_SNCF", "operateur": "SNCF"},
-                {"region": "France entière (État)", "type_marche": "TET", "lot": "ParisClermont", "relation": "Paris>Clermont-Ferrand", "statut": "mis_en_concurrence_pas_attribue", "operateur": ""},
-                {"region": "France entière (État)", "type_marche": "TET", "lot": "ParisLimogesToulouse", "relation": "Paris>Limoges>Toulouse", "statut": "mis_en_concurrence_pas_attribue", "operateur": ""}
-            ]
+        // Création de la légende
+        const legend = L.control({position: 'bottomright'});
+        legend.onAdd = function() {
+            const div = L.DomUtil.create('div', 'legend');
+            div.innerHTML = '<h3>Légende</h3>';
+            
+            for (const [status, label] of Object.entries(LABELS)) {
+                div.innerHTML += `
+                    <div class="legend-item">
+                        <div class="legend-line" style="background-color: ${COLORS[status]}"></div>
+                        <span>${label}</span>
+                    </div>
+                `;
+            }
+            
+            div.innerHTML += '<div class="legend-note">Source: Contexte (17/11/2025)<br>Les tracés sont approximatifs</div>';
+            return div;
         };
-        
-        const lignes = data.lignes;
+        legend.addTo(map);
+
+        // Fonction pour créer une approximation de ligne entre deux points
+        function createApproximateLine(pointA, pointB, numPoints = 20) {
+            const coords = [];
+            for (let i = 0; i <= numPoints; i++) {
+                const t = i / numPoints;
+                const lat = pointA[0] + (pointB[0] - pointA[0]) * t;
+                const lng = pointA[1] + (pointB[1] - pointA[1]) * t;
                 
-                // Statistiques
-                let countSNCF = 0;
-                let countConcurrent = 0;
-                let countConcurrence = 0;
-                let countTER = 0;
-                let countTET = 0;
-                const regions = new Set();
+                // Ajouter une courbure aléatoire pour rendre les lignes plus réalistes
+                const curve = Math.sin(t * Math.PI) * 0.1;
+                coords.push([lat + curve, lng + curve]);
+            }
+            return coords;
+        }
+
+        // Dictionnaire de coordonnées approximatives des villes principales
+        const cityCoords = {
+            'Paris': [48.8566, 2.3522],
+            'Lyon': [45.7640, 4.8357],
+            'Marseille': [43.2965, 5.3698],
+            'Toulouse': [43.6047, 1.4442],
+            'Nice': [43.7102, 7.2620],
+            'Nantes': [47.2184, -1.5536],
+            'Strasbourg': [48.5734, 7.7521],
+            'Montpellier': [43.6108, 3.8767],
+            'Bordeaux': [44.8378, -0.5792],
+            'Lille': [50.6292, 3.0573],
+            'Rennes': [48.1173, -1.6778],
+            'Reims': [49.2583, 4.0317],
+            'Saint-Ã‰tienne': [45.4397, 4.3872],
+            'Le Havre': [49.4944, 0.1079],
+            'Toulon': [43.1242, 5.9280],
+            'Grenoble': [45.1885, 5.7245],
+            'Dijon': [47.3220, 5.0415],
+            'Angers': [47.4784, -0.5632],
+            'Nimes': [43.8367, 4.3601],
+            'Villeurbanne': [45.7714, 4.8801],
+            'Saint-Denis': [48.9362, 2.3574],
+            'Clermont-Ferrand': [45.7772, 3.0870],
+            'Aix-en-Provence': [43.5297, 5.4474],
+            'Tours': [47.3941, 0.6848],
+            'Limoges': [45.8336, 1.2611],
+            'Amiens': [49.8942, 2.2958],
+            'Metz': [49.1193, 6.1757],
+            'BesanÃ§on': [47.2380, 6.0243],
+            'Perpignan': [42.6886, 2.8948],
+            'OrlÃ©ans': [47.9029, 1.9093],
+            'Brest': [48.3905, -4.4861],
+            'Rouen': [49.4432, 1.0993],
+            'Mulhouse': [47.7508, 7.3359],
+            'Caen': [49.1829, -0.3707],
+            'Nancy': [48.6921, 6.1844],
+            'Argenteuil': [48.9474, 2.2476],
+            'Saint-Paul': [48.9631, 2.3270],
+            'Roubaix': [50.6942, 3.1746],
+            'Tourcoing': [50.7244, 3.1610],
+            'Nanterre': [48.8924, 2.2069],
+            'Avignon': [43.9493, 4.8055],
+            'Poitiers': [46.5802, 0.3404],
+            'Aubervilliers': [48.9145, 2.3838],
+            'Dunkerque': [51.0343, 2.3768],
+            'Aulnay-sous-Bois': [48.9336, 2.4955],
+            'Asnières-sur-Seine': [48.9146, 2.2858],
+            'Colombes': [48.9237, 2.2541],
+            'Versailles': [48.8048, 2.1203],
+            'Cherbourg': [49.6337, -1.6220],
+            'Courbevoie': [48.8973, 2.2568],
+            'Rueil-Malmaison': [48.8773, 2.1833],
+            'Champigny-sur-Marne': [48.8173, 2.4995],
+            'Antibes': [43.5808, 7.1239],
+            'Calais': [50.9513, 1.8587],
+            'Cannes': [43.5528, 7.0174],
+            'Le Mans': [48.0077, 0.1984],
+            'Boulogne-Billancourt': [48.8350, 2.2420],
+            'Saint-Pierre': [48.9294, 2.3595],
+            'Beziers': [43.3442, 3.2150],
+            'Saint-Maur-des-FossÃ©s': [48.7998, 2.4978],
+            'Metz': [49.1193, 6.1757],
+            'Orleans': [47.9029, 1.9093],
+            'Saarbrucken': [49.2401, 6.9969],
+            'Karlsruhe': [49.0069, 8.4037],
+            'Trier': [49.7596, 6.6441],
+            'Offenburg': [48.4721, 7.9413],
+            'Neustadt': [49.3503, 8.1367],
+            'Wissembourg': [49.0389, 7.9447],
+            'Lauterbourg': [48.9747, 8.1783],
+            'Worth': [49.0144, 8.2519],
+            'Mullheim': [47.8089, 7.6283],
+            'Epinal': [48.1733, 6.4497],
+            'Saint-Die-des-Vosges': [48.2892, 6.9500],
+            'Selestat': [48.2600, 7.4528],
+            'Molsheim': [48.5403, 7.4922],
+            'Contrexeville': [48.1833, 5.8833],
+            'Charleville-Mezieres': [49.7719, 4.7197],
+            'Sedan': [49.7014, 4.9397],
+            'Givet': [50.1364, 4.8242],
+            'Hirson': [49.9217, 4.0819],
+            'Longuyon': [49.4489, 5.6008],
+            'Longwy': [49.5194, 5.7611],
+            'Thionville': [49.3583, 6.1669],
+            'Chalons-en-Champagne': [48.9536, 4.3631],
+            'Saint-Dizier': [48.6358, 4.9497],
+            'Chaumont': [48.1128, 5.1389],
+            'Culmont-Chalindrey': [47.8653, 5.3800],
+            'Fismes': [49.3094, 3.6808],
+            'Laon': [49.5639, 3.6244],
+            'Chateau-Thierry': [49.0472, 3.4031],
+            'Champagne-Ardenne-TGV': [49.2311, 4.0167],
+            'Epernay': [49.0425, 3.9572],
+            'Beauvais': [49.4294, 2.0808],
+            'Compiegne': [49.4178, 2.8261],
+            'Creil': [49.2578, 2.4739],
+            'Saint-Quentin': [49.8481, 3.2872],
+            'Maubeuge': [50.2778, 3.9731],
+            'Cambrai': [50.1761, 3.2339],
+            'Tergnier': [49.6556, 3.2881],
+            'Albert': [50.0025, 2.6506],
+            'Abbeville': [50.1056, 1.8342],
+            'Le Treport': [50.0611, 1.3742],
+            'Abancourt': [49.6886, 1.7708],
+            'Montdidier': [49.6486, 2.5703],
+            'Roissy': [49.0097, 2.5479],
+            'Saint-Pol-sur-Ternoise': [50.3811, 2.3372],
+            'Arras': [50.2917, 2.7772],
+            'Bethune': [50.5292, 2.6403],
+            'Etaples': [50.5175, 1.6369],
+            'Macon': [46.3064, 4.8283],
+            'Cosne': [47.4136, 2.9272],
+            'Moulins': [46.5650, 3.3333],
+            'Chagny': [46.9094, 4.7503],
+            'Nevers': [46.9900, 3.1597],
+            'Montchanin': [46.7439, 4.4697],
+            'Paray': [46.4522, 4.1189],
+            'Pornic': [47.1161, -2.1028],
+            'Saint-Gilles-Croix-de-Vie': [46.6956, -1.9397],
+            'La Roche-sur-Yon': [46.6703, -1.4269],
+            'Les Sables-d-Olonne': [46.4967, -1.7836],
+            'La Rochelle': [46.1603, -1.1511],
+            'Cholet': [47.0597, -0.8800],
+            'Nort-sur-Erdre': [47.4386, -1.4989],
+            'Chateaubriant': [47.7178, -1.3764],
+            'Clisson': [47.0869, -1.2814],
+            'Vintimille': [43.7895, 7.5085],
+            'Les-Arcs-Draguignan': [43.4636, 6.4792],
+            'Grasse': [43.6586, 6.9225],
+            'Breil-sur-Roya': [43.9353, 7.5167],
+            'Tende': [44.0914, 7.5956],
+            'Aubagne': [43.2928, 5.5706],
+            'Hyeres': [43.1203, 6.1289],
+            'Pertuis': [43.6944, 5.5025],
+            'Gap': [44.5597, 6.0797],
+            'Briancon': [44.8981, 6.6414],
+            'Valence': [44.9333, 4.8925],
+            'Romans': [45.0444, 5.0514],
+            'Miramas': [43.5847, 5.0028],
+            'Coutances': [49.0481, -1.4456],
+            'Saint-Lo': [49.1153, -1.0914],
+            'Evreux': [49.0242, 1.1511],
+            'Lisieux': [49.1469, 0.2281],
+            'Granville': [48.8378, -1.5978],
+            'Trouville-Deauville': [49.3658, 0.0753],
+            'Dives-Cabourg': [49.2858, -0.0975],
+            'Angouleme': [45.6500, 0.1603],
+            'Saintes': [45.7472, -0.6331],
+            'Royan': [45.6250, -1.0281],
+            'Niort': [46.3236, -0.4594],
+            'Chatellerault': [46.8178, 0.5464],
+            'Carcassonne': [43.2130, 2.3491],
+            'Narbonne': [43.1839, 3.0039]
+        };
+
+        // Fonction pour normaliser les noms de villes
+        function normalizeCity(name) {
+            return name
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/[^a-z]/g, '');
+        }
+
+        // Fonction pour trouver les coordonnées d'une ville
+        function findCityCoords(cityName) {
+            const normalized = normalizeCity(cityName);
+            for (const [city, coords] of Object.entries(cityCoords)) {
+                if (normalizeCity(city) === normalized) {
+                    return coords;
+                }
+            }
+            return null;
+        }
+
+        // Fonction pour parser une relation et extraire les villes
+        function parseRelation(relation) {
+            return relation.split('>').map(s => s.trim());
+        }
+
+        // Chargement des données
+        async function loadData() {
+            try {
+                const response = await fetch('etat_ligne.json');
+                const data = await response.json();
                 
-                // Dessiner les lignes
-                lignes.forEach(ligne => {
-                    const villes = ligne.relation.split('>');
-                    const coords = [];
-                    
-                    villes.forEach(ville => {
-                        const coord = getCoords(ville.trim());
-                        if (coord) {
-                            coords.push(coord);
+                // Grouper par statut
+                const groupedLines = {};
+                data.lignes.forEach(ligne => {
+                    if (!groupedLines[ligne.statut]) {
+                        groupedLines[ligne.statut] = [];
+                    }
+                    groupedLines[ligne.statut].push(ligne);
+                });
+
+                // Dessiner les lignes pour chaque statut
+                for (const [statut, lignes] of Object.entries(groupedLines)) {
+                    lignes.forEach(ligne => {
+                        const cities = parseRelation(ligne.relation);
+                        
+                        // Créer une polyligne pour chaque segment
+                        for (let i = 0; i < cities.length - 1; i++) {
+                            const cityA = findCityCoords(cities[i]);
+                            const cityB = findCityCoords(cities[i + 1]);
+                            
+                            if (cityA && cityB) {
+                                const coords = createApproximateLine(cityA, cityB);
+                                
+                                const polyline = L.polyline(coords, {
+                                    color: COLORS[statut],
+                                    weight: 3,
+                                    opacity: 0.7,
+                                    smoothFactor: 1
+                                }).addTo(map);
+
+                                // Popup avec informations
+                                const badgeClass = statut === 'attribue_SNCF' ? 'badge-sncf' : 
+                                                  statut === 'attribue_concurrent' ? 'badge-concurrent' : 
+                                                  'badge-encours';
+                                
+                                polyline.bindPopup(`
+                                    <div class="popup-title">${ligne.relation}</div>
+                                    <div class="popup-info">
+                                        <strong>Région:</strong> ${ligne.region}<br>
+                                        <strong>Type:</strong> ${ligne.type_marche}<br>
+                                        <strong>Lot:</strong> ${ligne.lot}<br>
+                                        ${ligne.operateur ? `<strong>Opérateur:</strong> ${ligne.operateur}<br>` : ''}
+                                        <div class="popup-badge ${badgeClass}">${LABELS[statut]}</div>
+                                    </div>
+                                `);
+                            }
                         }
                     });
-                    
-                    if (coords.length >= 2) {
-                        const polyline = L.polyline(coords, {
-                            color: couleurs[ligne.statut],
-                            weight: 4,
-                            opacity: 0.7
-                        }).addTo(map);
-                        
-                        const operateurTexte = ligne.operateur || "Non attribué";
-                        
-                        polyline.bindPopup(`
-                            <div class="popup-title">${ligne.relation}</div>
-                            <div class="popup-info"><span class="popup-label">Région:</span> ${ligne.region}</div>
-                            <div class="popup-info"><span class="popup-label">Type:</span> ${ligne.type_marche}</div>
-                            <div class="popup-info"><span class="popup-label">Lot:</span> ${ligne.lot}</div>
-                            <div class="popup-info"><span class="popup-label">Opérateur:</span> ${operateurTexte}</div>
-                        `);
-                    }
-                    
-                    // Compter les statistiques
-                    if (ligne.statut === "attribue_SNCF") countSNCF++;
-                    else if (ligne.statut === "attribue_concurrent") countConcurrent++;
-                    else if (ligne.statut === "mis_en_concurrence_pas_attribue") countConcurrence++;
-                    
-                    if (ligne.type_marche === "TER") countTER++;
-                    else if (ligne.type_marche === "TET") countTET++;
-                    
-                    regions.add(ligne.region);
-                });
+                }
+
+                document.getElementById('loading').classList.add('hidden');
                 
-                // Mise à jour des compteurs
-                document.getElementById('count-sncf').textContent = countSNCF;
-                document.getElementById('count-concurrent').textContent = countConcurrent;
-                document.getElementById('count-concurrence').textContent = countConcurrence;
-                document.getElementById('total-lignes').textContent = lignes.length;
-                document.getElementById('total-ter').textContent = countTER;
-                document.getElementById('total-tet').textContent = countTET;
-                document.getElementById('total-regions').textContent = regions.size;
+            } catch (error) {
+                console.error('Erreur lors du chargement des données:', error);
+                document.getElementById('loading').innerHTML = `
+                    <div style="color: #d32f2f;">
+                        ⚠️ Erreur de chargement<br>
+                        <small>Vérifiez que le fichier etat_ligne.json est accessible</small>
+                    </div>
+                `;
+            }
+        }
+
+        // Démarrer le chargement
+        loadData();
     </script>
 </body>
 </html>
