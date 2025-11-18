@@ -1,0 +1,688 @@
+{
+  "meta": {
+    "description": "Lignes ferroviaires mentionnées dans l'infographie Contexte sur l'ouverture à la concurrence (TER + TET, hors Île-de-France et Corse).",
+    "source": "Contexte, article 'Ouverture du rail à la concurrence : les régions en ordre dispersé'",
+    "date_article": "2025-11-17"
+  },
+  "lignes": [
+    {
+      "region": "Bourgogne-Franche-Comté",
+      "type_marche": "TER",
+      "lot": "Bourgogne-Ouest-Nivernais",
+      "relation": "Dijon>Mâcon",
+      "statut": "attribue_SNCF",
+      "operateur": "SNCF"
+    },
+    {
+      "region": "Bourgogne-Franche-Comté",
+      "type_marche": "TER",
+      "lot": "Bourgogne-Ouest-Nivernais",
+      "relation": "Cosne>Moulins",
+      "statut": "attribue_SNCF",
+      "operateur": "SNCF"
+    },
+    {
+      "region": "Bourgogne-Franche-Comté",
+      "type_marche": "TER",
+      "lot": "Bourgogne-Ouest-Nivernais",
+      "relation": "Chagny>Nevers",
+      "statut": "attribue_SNCF",
+      "operateur": "SNCF"
+    },
+    {
+      "region": "Bourgogne-Franche-Comté",
+      "type_marche": "TER",
+      "lot": "Bourgogne-Ouest-Nivernais",
+      "relation": "Montchanin>Paray",
+      "statut": "attribue_SNCF",
+      "operateur": "SNCF"
+    },
+    {
+      "region": "Bourgogne-Franche-Comté",
+      "type_marche": "TER",
+      "lot": "Bourgogne-Ouest-Nivernais",
+      "relation": "Lyon>Moulins",
+      "statut": "attribue_SNCF",
+      "operateur": "SNCF"
+    },
+
+    {
+      "region": "Grand Est",
+      "type_marche": "TER",
+      "lot": "Nancy-Contrexéville",
+      "relation": "Nancy>Contrexville",
+      "statut": "attribue_concurrent",
+      "operateur": "Transdev (groupement NGE/Banque des Territoires)"
+    },
+    {
+      "region": "Grand Est",
+      "type_marche": "TER",
+      "lot": "Bruche-Piémont-Vosges",
+      "relation": "Épinal>Saint-Die-des-vosges>Strasbourg",
+      "statut": "mis_en_concurrence_pas_attribue",
+      "operateur": ""
+    },
+    {
+      "region": "Grand Est",
+      "type_marche": "TER",
+      "lot": "Bruche-Piémont-Vosges",
+      "relation": "Sélestat>Molsheim>Strasbourg",
+      "statut": "mis_en_concurrence_pas_attribue",
+      "operateur": ""
+    },
+    {
+      "region": "Grand Est",
+      "type_marche": "TER",
+      "lot": "Lot transfrontalier",
+      "relation": "Metz>Trier",
+      "statut": "mis_en_concurrence_pas_attribue",
+      "operateur": ""
+    },
+    {
+      "region": "Grand Est",
+      "type_marche": "TER",
+      "lot": "Lot transfrontalier",
+      "relation": "Metz>Saarbrücken",
+      "statut": "mis_en_concurrence_pas_attribue",
+      "operateur": ""
+    },
+    {
+      "region": "Grand Est",
+      "type_marche": "TER",
+      "lot": "Lot transfrontalier",
+      "relation": "Strasbourg>Saarbrücken",
+      "statut": "mis_en_concurrence_pas_attribue",
+      "operateur": ""
+    },
+    {
+      "region": "Grand Est",
+      "type_marche": "TER",
+      "lot": "Lot transfrontalier",
+      "relation": "Strasbourg>Wissembourg>Neustadt",
+      "statut": "mis_en_concurrence_pas_attribue",
+      "operateur": ""
+    },
+    {
+      "region": "Grand Est",
+      "type_marche": "TER",
+      "lot": "Lot transfrontalier",
+      "relation": "Strasbourg>Lauterbourg>Wörth>Karlsruhe",
+      "statut": "mis_en_concurrence_pas_attribue",
+      "operateur": ""
+    },
+    {
+      "region": "Grand Est",
+      "type_marche": "TER",
+      "lot": "Lot transfrontalier",
+      "relation": "Strasbourg>Offenburg",
+      "statut": "mis_en_concurrence_pas_attribue",
+      "operateur": ""
+    },
+    {
+      "region": "Grand Est",
+      "type_marche": "TER",
+      "lot": "Lot transfrontalier",
+      "relation": "Mulhouse>Müllheim",
+      "statut": "mis_en_concurrence_pas_attribue",
+      "operateur": ""
+    },
+    {
+      "region": "Grand Est",
+      "type_marche": "TER",
+      "lot": "Étoile de Reims",
+      "relation": "Epernay>Reims>ChâteauThierry",
+      "statut": "mis_en_concurrence_pas_attribue",
+      "operateur": ""
+    },
+    {
+      "region": "Grand Est",
+      "type_marche": "TER",
+      "lot": "Étoile de Reims",
+      "relation": "ChampagneArdenneTGV>Reims>Charleville-Mézières>Sedan",
+      "statut": "mis_en_concurrence_pas_attribue",
+      "operateur": ""
+    },
+    {
+      "region": "Grand Est",
+      "type_marche": "TER",
+      "lot": "Étoile de Reims",
+      "relation": "Charleville-Mézières>Givet",
+      "statut": "mis_en_concurrence_pas_attribue",
+      "operateur": ""
+    },
+    {
+      "region": "Grand Est",
+      "type_marche": "TER",
+      "lot": "Étoile de Reims",
+      "relation": "Charleville-mézières>Hirson>Longuyon>Longwy/Thionville",
+      "statut": "mis_en_concurrence_pas_attribue",
+      "operateur": ""
+    },
+    {
+      "region": "Grand Est",
+      "type_marche": "TER",
+      "lot": "Étoile de Reims",
+      "relation": "Reims>Châlons-en-Champagne>Saint-Dizier>Chaumont>Culmont-Chalindrey>Dijon",
+      "statut": "mis_en_concurrence_pas_attribue",
+      "operateur": ""
+    },
+    {
+      "region": "Grand Est",
+      "type_marche": "TER",
+      "lot": "Étoile de Reims",
+      "relation": "Reims>Fismes",
+      "statut": "mis_en_concurrence_pas_attribue",
+      "operateur": ""
+    },
+    {
+      "region": "Grand Est",
+      "type_marche": "TER",
+      "lot": "Étoile de Reims",
+      "relation": "Reims>Laon",
+      "statut": "mis_en_concurrence_pas_attribue",
+      "operateur": ""
+    },
+
+    {
+      "region": "Hauts-de-France",
+      "type_marche": "TER",
+      "lot": "Étoile d'Amiens",
+      "relation": "Amiens>Tergnier>Laon",
+      "statut": "attribue_SNCF",
+      "operateur": "SNCF"
+    },
+    {
+      "region": "Hauts-de-France",
+      "type_marche": "TER",
+      "lot": "Étoile d'Amiens",
+      "relation": "Amiens>Saint-Quentin",
+      "statut": "attribue_SNCF",
+      "operateur": "SNCF"
+    },
+    {
+      "region": "Hauts-de-France",
+      "type_marche": "TER",
+      "lot": "Étoile d'Amiens",
+      "relation": "Amiens>Albert>Lille",
+      "statut": "attribue_SNCF",
+      "operateur": "SNCF"
+    },
+    {
+      "region": "Hauts-de-France",
+      "type_marche": "TER",
+      "lot": "Étoile d'Amiens",
+      "relation": "Amiens>Abbeville",
+      "statut": "attribue_SNCF",
+      "operateur": "SNCF"
+    },
+    {
+      "region": "Hauts-de-France",
+      "type_marche": "TER",
+      "lot": "Étoile d'Amiens",
+      "relation": "Beauvais>Abancourt>LeTréport",
+      "statut": "attribue_SNCF",
+      "operateur": "SNCF"
+    },
+    {
+      "region": "Hauts-de-France",
+      "type_marche": "TER",
+      "lot": "Étoile d'Amiens",
+      "relation": "Amiens>Creil",
+      "statut": "attribue_SNCF",
+      "operateur": "SNCF"
+    },
+    {
+      "region": "Hauts-de-France",
+      "type_marche": "TER",
+      "lot": "Étoile d'Amiens",
+      "relation": "Amiens>Montdidier>Compiègne",
+      "statut": "attribue_SNCF",
+      "operateur": "SNCF"
+    },
+    {
+      "region": "Hauts-de-France",
+      "type_marche": "TER",
+      "lot": "Étoile d'Amiens",
+      "relation": "Amiens>Rouen",
+      "statut": "attribue_SNCF",
+      "operateur": "SNCF"
+    },
+    {
+      "region": "Hauts-de-France",
+      "type_marche": "TER",
+      "lot": "Radiales parisiennes",
+      "relation": "Paris>Creil>Amiens>Calais",
+      "statut": "mis_en_concurrence_pas_attribue",
+      "operateur": ""
+    },
+    {
+      "region": "Hauts-de-France",
+      "type_marche": "TER",
+      "lot": "Radiales parisiennes",
+      "relation": "Paris>Creil>Compiègne>Saint-Quentin>Maubeuge/Cambrai",
+      "statut": "mis_en_concurrence_pas_attribue",
+      "operateur": ""
+    },
+    {
+      "region": "Hauts-de-France",
+      "type_marche": "TER",
+      "lot": "Radiales parisiennes",
+      "relation": "Paris>Laon",
+      "statut": "mis_en_concurrence_pas_attribue",
+      "operateur": ""
+    },
+    {
+      "region": "Hauts-de-France",
+      "type_marche": "TER",
+      "lot": "Radiales parisiennes",
+      "relation": "Beauvais>Paris",
+      "statut": "mis_en_concurrence_pas_attribue",
+      "operateur": ""
+    },
+    {
+      "region": "Hauts-de-France",
+      "type_marche": "TER",
+      "lot": "Radiales parisiennes",
+      "relation": "Amiens>Creil>Roissy",
+      "statut": "mis_en_concurrence_pas_attribue",
+      "operateur": ""
+    },
+    {
+      "region": "Hauts-de-France",
+      "type_marche": "TER",
+      "lot": "Radiales parisiennes",
+      "relation": "Saint-Quentin>Creil>Roissy",
+      "statut": "mis_en_concurrence_pas_attribue",
+      "operateur": ""
+    },
+    {
+      "region": "Hauts-de-France",
+      "type_marche": "TER",
+      "lot": "Étoile de Saint-Pol-sur-Ternoise",
+      "relation": "Saint-pol-sur-ternoise>Arras",
+      "statut": "mis_en_concurrence_pas_attribue",
+      "operateur": ""
+    },
+    {
+      "region": "Hauts-de-France",
+      "type_marche": "TER",
+      "lot": "Étoile de Saint-Pol-sur-Ternoise",
+      "relation": "Saint-pol-sur-ternoise>Béthune",
+      "statut": "mis_en_concurrence_pas_attribue",
+      "operateur": ""
+    },
+    {
+      "region": "Hauts-de-France",
+      "type_marche": "TER",
+      "lot": "Étoile de Saint-Pol-sur-Ternoise",
+      "relation": "Saint-pol-sur-ternoise>Etaples",
+      "statut": "mis_en_concurrence_pas_attribue",
+      "operateur": ""
+    },
+
+    {
+      "region": "Pays de la Loire",
+      "type_marche": "TER",
+      "lot": "Tram-train",
+      "relation": "Nantes>Nort-sur-Erdre",
+      "statut": "attribue_SNCF",
+      "operateur": "SNCF"
+    },
+    {
+      "region": "Pays de la Loire",
+      "type_marche": "TER",
+      "lot": "Tram-train",
+      "relation": "Nantes>Chateaubriand",
+      "statut": "attribue_SNCF",
+      "operateur": "SNCF"
+    },
+    {
+      "region": "Pays de la Loire",
+      "type_marche": "TER",
+      "lot": "Tram-train",
+      "relation": "Nantes>Clisson",
+      "statut": "attribue_SNCF",
+      "operateur": "SNCF"
+    },
+    {
+      "region": "Pays de la Loire",
+      "type_marche": "TER",
+      "lot": "Sud Loire",
+      "relation": "Nantes>Pornic",
+      "statut": "attribue_SNCF",
+      "operateur": "SNCF"
+    },
+    {
+      "region": "Pays de la Loire",
+      "type_marche": "TER",
+      "lot": "Sud Loire",
+      "relation": "Nantes>Saint-Gilles-Croix-de-vie",
+      "statut": "attribue_SNCF",
+      "operateur": "SNCF"
+    },
+    {
+      "region": "Pays de la Loire",
+      "type_marche": "TER",
+      "lot": "Sud Loire",
+      "relation": "Nantes>LaRoche-sur-yon>LesSablesd'olonne",
+      "statut": "attribue_SNCF",
+      "operateur": "SNCF"
+    },
+    {
+      "region": "Pays de la Loire",
+      "type_marche": "TER",
+      "lot": "Sud Loire",
+      "relation": "Nantes>LaRochelle",
+      "statut": "attribue_SNCF",
+      "operateur": "SNCF"
+    },
+    {
+      "region": "Pays de la Loire",
+      "type_marche": "TER",
+      "lot": "Sud Loire",
+      "relation": "Nantes>Cholet",
+      "statut": "attribue_SNCF",
+      "operateur": "SNCF"
+    },
+    {
+      "region": "Pays de la Loire",
+      "type_marche": "TER",
+      "lot": "Sud Loire",
+      "relation": "Angers>Cholet",
+      "statut": "attribue_SNCF",
+      "operateur": "SNCF"
+    },
+
+    {
+      "region": "Provence-Alpes-Côte d'Azur",
+      "type_marche": "TER",
+      "lot": "Intermétropoles",
+      "relation": "Marseille>Toulon>Nice",
+      "statut": "attribue_concurrent",
+      "operateur": "Transdev"
+    },
+    {
+      "region": "Provence-Alpes-Côte d'Azur",
+      "type_marche": "TER",
+      "lot": "Azur",
+      "relation": "LesArcsDraguignan>Nice>Vintimille",
+      "statut": "attribue_SNCF",
+      "operateur": "SNCF"
+    },
+    {
+      "region": "Provence-Alpes-Côte d'Azur",
+      "type_marche": "TER",
+      "lot": "Azur",
+      "relation": "Cannes>Grasse",
+      "statut": "attribue_SNCF",
+      "operateur": "SNCF"
+    },
+    {
+      "region": "Provence-Alpes-Côte d'Azur",
+      "type_marche": "TER",
+      "lot": "Azur",
+      "relation": "Nice>Breil-sur-Roya>Tende",
+      "statut": "attribue_SNCF",
+      "operateur": "SNCF"
+    },
+    {
+      "region": "Provence-Alpes-Côte d'Azur",
+      "type_marche": "TER",
+      "lot": "Lot 3",
+      "relation": "Marseille>Aubagne>Toulon>Hyères",
+      "statut": "attribue_SNCF",
+      "operateur": "SNCF"
+    },
+    {
+      "region": "Provence-Alpes-Côte d'Azur",
+      "type_marche": "TER",
+      "lot": "Lot 3",
+      "relation": "Marseille>Toulon>LesArcsDraguignan",
+      "statut": "attribue_SNCF",
+      "operateur": "SNCF"
+    },
+    {
+      "region": "Provence-Alpes-Côte d'Azur",
+      "type_marche": "TER",
+      "lot": "Lot 3",
+      "relation": "Marseille>Aix-en-provence>Pertuis",
+      "statut": "attribue_SNCF",
+      "operateur": "SNCF"
+    },
+    {
+      "region": "Provence-Alpes-Côte d'Azur",
+      "type_marche": "TER",
+      "lot": "Lot 3",
+      "relation": "Marseille>Gap>Briançon",
+      "statut": "attribue_SNCF",
+      "operateur": "SNCF"
+    },
+    {
+      "region": "Provence-Alpes-Côte d'Azur",
+      "type_marche": "TER",
+      "lot": "Lot 3",
+      "relation": "Briançon>Gap>Valence>Romans",
+      "statut": "attribue_SNCF",
+      "operateur": "SNCF"
+    },
+    {
+      "region": "Provence-Alpes-Côte d'Azur",
+      "type_marche": "TER",
+      "lot": "Lot 4",
+      "relation": "Marseille>Miramas",
+      "statut": "mis_en_concurrence_pas_attribue",
+      "operateur": ""
+    },
+    {
+      "region": "Provence-Alpes-Côte d'Azur",
+      "type_marche": "TER",
+      "lot": "Lot 4",
+      "relation": "Marseille>Avignon",
+      "statut": "mis_en_concurrence_pas_attribue",
+      "operateur": ""
+    },
+    {
+      "region": "Provence-Alpes-Côte d'Azur",
+      "type_marche": "TER",
+      "lot": "Lot 4",
+      "relation": "Marseille>Avignon>Valence>Lyon",
+      "statut": "mis_en_concurrence_pas_attribue",
+      "operateur": ""
+    },
+    {
+      "region": "Provence-Alpes-Côte d'Azur",
+      "type_marche": "TER",
+      "lot": "Lot 4",
+      "relation": "Marseille>Nîmes>Montpellier",
+      "statut": "mis_en_concurrence_pas_attribue",
+      "operateur": ""
+    },
+    {
+      "region": "Provence-Alpes-Côte d'Azur",
+      "type_marche": "TER",
+      "lot": "Lot 4",
+      "relation": "Avignon>Carpentras",
+      "statut": "mis_en_concurrence_pas_attribue",
+      "operateur": ""
+    },
+
+    {
+      "region": "Normandie",
+      "type_marche": "TER",
+      "lot": "Étoile de Caen",
+      "relation": "Caen>Coutances",
+      "statut": "attribue_concurrent",
+      "operateur": "RATP"
+    },
+    {
+      "region": "Normandie",
+      "type_marche": "TER",
+      "lot": "Étoile de Caen",
+      "relation": "Caen>Saint-Lô",
+      "statut": "attribue_concurrent",
+      "operateur": "RATP"
+    },
+    {
+      "region": "Normandie",
+      "type_marche": "TER",
+      "lot": "Étoile de Caen",
+      "relation": "Caen>Evreux",
+      "statut": "attribue_concurrent",
+      "operateur": "RATP"
+    },
+    {
+      "region": "Normandie",
+      "type_marche": "TER",
+      "lot": "Étoile de Caen",
+      "relation": "Caen>Cherbourg",
+      "statut": "attribue_concurrent",
+      "operateur": "RATP"
+    },
+    {
+      "region": "Normandie",
+      "type_marche": "TER",
+      "lot": "Étoile de Caen",
+      "relation": "Caen>Rouen",
+      "statut": "attribue_concurrent",
+      "operateur": "RATP"
+    },
+    {
+      "region": "Normandie",
+      "type_marche": "TER",
+      "lot": "Étoile de Caen",
+      "relation": "Caen>Lisieux",
+      "statut": "attribue_concurrent",
+      "operateur": "RATP"
+    },
+    {
+      "region": "Normandie",
+      "type_marche": "TER",
+      "lot": "Étoile de Caen",
+      "relation": "Caen>Granville",
+      "statut": "attribue_concurrent",
+      "operateur": "RATP"
+    },
+    {
+      "region": "Normandie",
+      "type_marche": "TER",
+      "lot": "Étoile de Caen",
+      "relation": "Caen>Rennes",
+      "statut": "attribue_concurrent",
+      "operateur": "RATP"
+    },
+    {
+      "region": "Normandie",
+      "type_marche": "TER",
+      "lot": "Étoile de Caen",
+      "relation": "Lisieux>Trouville-Deauville",
+      "statut": "attribue_concurrent",
+      "operateur": "RATP"
+    },
+    {
+      "region": "Normandie",
+      "type_marche": "TER",
+      "lot": "Étoile de Caen",
+      "relation": "Trouville-Deauville>Dives-Cabourg",
+      "statut": "attribue_concurrent",
+      "operateur": "RATP"
+    },
+
+    {
+      "region": "Nouvelle-Aquitaine",
+      "type_marche": "TER",
+      "lot": "Poitou-charentes",
+      "relation": "LaRochelle>Rochefort>Saintes>Bordeaux",
+      "statut": "mis_en_concurrence_pas_attribue",
+      "operateur": ""
+    },
+    {
+      "region": "Nouvelle-Aquitaine",
+      "type_marche": "TER",
+      "lot": "Poitou-charentes",
+      "relation": "Angoulême>Saintes>Royan",
+      "statut": "mis_en_concurrence_pas_attribue",
+      "operateur": ""
+    },
+    {
+      "region": "Nouvelle-Aquitaine",
+      "type_marche": "TER",
+      "lot": "Poitou-charentes",
+      "relation": "Niort>Saintes>Royan",
+      "statut": "mis_en_concurrence_pas_attribue",
+      "operateur": ""
+    },
+    {
+      "region": "Nouvelle-Aquitaine",
+      "type_marche": "TER",
+      "lot": "Poitou-charentes",
+      "relation": "Poitiers>Niort>LaRochelle",
+      "statut": "mis_en_concurrence_pas_attribue",
+      "operateur": ""
+    },
+    {
+      "region": "Nouvelle-Aquitaine",
+      "type_marche": "TER",
+      "lot": "Poitou-charentes",
+      "relation": "Tours>Châtellerault>Poitiers",
+      "statut": "mis_en_concurrence_pas_attribue",
+      "operateur": ""
+    },
+    {
+      "region": "Nouvelle-Aquitaine",
+      "type_marche": "TER",
+      "lot": "Poitou-charentes",
+      "relation": "Poitiers>Angoulême",
+      "statut": "mis_en_concurrence_pas_attribue",
+      "operateur": ""
+    },
+    {
+      "region": "Nouvelle-Aquitaine",
+      "type_marche": "TER",
+      "lot": "Poitou-charentes",
+      "relation": "Châtellerault>Poitiers>Angoulême",
+      "statut": "mis_en_concurrence_pas_attribue",
+      "operateur": ""
+    },
+    {
+      "region": "Nouvelle-Aquitaine",
+      "type_marche": "TER",
+      "lot": "Poitou-charentes",
+      "relation": "Angoulême>Bordeaux",
+      "statut": "mis_en_concurrence_pas_attribue",
+      "operateur": ""
+    },
+
+    {
+      "region": "France entière (État)",
+      "type_marche": "TET",
+      "lot": "Bordeaux, Nantes, Lyon",
+      "relation": "Nantes>Bordeaux",
+      "statut": "attribue_SNCF",
+      "operateur": "SNCF"
+    },
+    {
+      "region": "France entière (État)",
+      "type_marche": "TET",
+      "lot": "Bordeaux, Nantes, Lyon",
+      "relation": "Nantes>Lyon",
+      "statut": "attribue_SNCF",
+      "operateur": "SNCF"
+    },
+    {
+      "region": "France entière (État)",
+      "type_marche": "TET",
+      "lot": "ParisClermont",
+      "relation": "Paris>Clermont",
+      "statut": "mis_en_concurrence_pas_attribue",
+      "operateur": ""
+    },
+    {
+      "region": "France entière (État)",
+      "type_marche": "TET",
+      "lot": "ParisLimogesToulouse",
+      "relation": "Paris>Limoges>Toulouse",
+      "statut": "mis_en_concurrence_pas_attribue",
+      "operateur": ""
+    }
+  ]
+}
