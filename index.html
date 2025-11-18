@@ -1,182 +1,213 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html>
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
+    <title>Carte des lignes TER - Ouverture à la concurrence</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ouverture à la concurrence des lignes ferroviaires françaises</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; }
-        #header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        #header h1 { font-size: 24px; margin-bottom: 8px; }
-        #header p { font-size: 14px; opacity: 0.9; }
-        #map { height: calc(100vh - 100px); width: 100%; }
-        #legend { position: absolute; bottom: 30px; right: 20px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 1000; max-width: 350px; }
-        #legend h3 { margin: 0 0 15px 0; font-size: 16px; color: #333; border-bottom: 2px solid #667eea; padding-bottom: 8px; }
-        .legend-item { display: flex; align-items: center; margin-bottom: 12px; }
-        .legend-line { width: 40px; height: 4px; margin-right: 12px; border-radius: 2px; }
-        .legend-text { font-size: 13px; color: #555; flex: 1; }
-        .legend-count { font-size: 12px; color: #888; background: #f0f0f0; padding: 2px 8px; border-radius: 10px; margin-left: 8px; font-weight: 600; }
-        .leaflet-popup-content { margin: 15px; min-width: 280px; }
-        .popup-title { font-weight: bold; font-size: 16px; color: #333; margin-bottom: 10px; border-bottom: 2px solid #667eea; padding-bottom: 5px; }
-        .popup-info { font-size: 13px; line-height: 1.6; color: #555; }
-        .popup-row { display: flex; margin: 6px 0; }
-        .popup-label { font-weight: 600; color: #667eea; min-width: 90px; }
-        .status-badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
-        .status-sncf { background: #4CAF50; color: white; }
-        .status-concurrent { background: #2196F3; color: white; }
-        .status-encours { background: #FF9800; color: white; }
-        #loading { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px 50px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 2000; text-align: center; }
-        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #667eea; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 15px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+        }
+        #map {
+            height: 100vh;
+            width: 100%;
+        }
+        .legend {
+            background: white;
+            padding: 18px;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+            line-height: 28px;
+            color: #444;
+        }
+        .legend h4 {
+            margin: 0 0 12px 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #222;
+        }
+        .legend-item {
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+        }
+        .legend-color {
+            width: 36px;
+            height: 4px;
+            margin-right: 12px;
+            border-radius: 2px;
+        }
+        .legend-source {
+            font-size: 11px;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid #e5e5e5;
+            color: #888;
+        }
+        .info {
+            padding: 14px 16px;
+            background: white;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+            border-radius: 8px;
+        }
+        .info h4 {
+            margin: 0 0 8px;
+            color: #222;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        .info p {
+            margin: 4px 0;
+            font-size: 13px;
+            color: #666;
+        }
+        .leaflet-popup-content {
+            margin: 14px;
+            max-width: 320px;
+        }
+        .leaflet-popup-content h3 {
+            margin: 0 0 12px 0;
+            font-size: 15px;
+            color: #222;
+            font-weight: 600;
+        }
+        .leaflet-popup-content p {
+            margin: 7px 0;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .leaflet-popup-content strong {
+            color: #444;
+        }
+        .popup-label {
+            display: inline-block;
+            min-width: 80px;
+        }
     </style>
 </head>
 <body>
-    <div id="header">
-        <h1>🚆 Ouverture à la concurrence des lignes ferroviaires françaises</h1>
-        <p>État des lignes TER et TET (hors Île-de-France et Corse) - Tracés réels - Source: Contexte, novembre 2025</p>
-    </div>
-    <div id="loading"><div class="spinner"></div><div>Chargement de la carte...</div></div>
     <div id="map"></div>
-    <div id="legend">
-        <h3>Légende</h3>
-        <div class="legend-item">
-            <div class="legend-line" style="background: #4CAF50;"></div>
-            <span class="legend-text">Attribué à la SNCF</span>
-            <span class="legend-count" id="count-sncf">0</span>
-        </div>
-        <div class="legend-item">
-            <div class="legend-line" style="background: #2196F3;"></div>
-            <span class="legend-text">Attribué à un concurrent</span>
-            <span class="legend-count" id="count-concurrent">0</span>
-        </div>
-        <div class="legend-item">
-            <div class="legend-line" style="background: #FF9800;"></div>
-            <span class="legend-text">Mis en concurrence (non attribué)</span>
-            <span class="legend-count" id="count-encours">0</span>
-        </div>
-        <hr style="margin: 15px 0; border: none; border-top: 1px solid #ddd;">
-        <div style="font-size: 12px; color: #666;"><strong>Tracés affichés:</strong> <span id="total-lines">0</span></div>
-    </div>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
     <script>
-        const map = L.map('map').setView([46.603354, 2.888334], 6);
+        var map = L.map('map').setView([47.0, 2.5], 6);
+        
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors',
-            maxZoom: 18
+            maxZoom: 19
         }).addTo(map);
         
-        const statusColors = {
-            'attribue_SNCF': '#4CAF50',
-            'attribue_concurrent': '#2196F3',
-            'mis_en_concurrence_pas_attribue': '#FF9800'
+        var styles = {
+            'attribue_SNCF': {
+                color: '#0088CE',
+                weight: 3,
+                opacity: 0.7
+            },
+            'attribue_concurrent': {
+                color: '#E63946',
+                weight: 5,
+                opacity: 0.9
+            },
+            'mis_en_concurrence_pas_attribue': {
+                color: '#F77F00',
+                weight: 4,
+                opacity: 0.8
+            }
         };
         
-        const statusLabels = {
-            'attribue_SNCF': 'Attribué à la SNCF',
-            'attribue_concurrent': 'Attribué à un concurrent',
-            'mis_en_concurrence_pas_attribue': 'Mis en concurrence (non attribué)'
+        var lignes = [{"coords": [[5.0415, 47.322], [4.8311, 46.3061]], "lib_ligne": "Dijon → Mâcon", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Dijon>Mâcon", "region": "Bourgogne-Franche-Comté", "type_marche": "TER", "lot": "Bourgogne-Ouest-Nivernais"}, {"coords": [[2.9261, 47.4111], [3.3333, 46.5653]], "lib_ligne": "Cosne → Moulins", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Cosne>Moulins", "region": "Bourgogne-Franche-Comté", "type_marche": "TER", "lot": "Bourgogne-Ouest-Nivernais"}, {"coords": [[4.755, 46.9097], [3.1667, 47.0]], "lib_ligne": "Chagny → Nevers", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Chagny>Nevers", "region": "Bourgogne-Franche-Comté", "type_marche": "TER", "lot": "Bourgogne-Ouest-Nivernais"}, {"coords": [[4.4669, 46.75], [4.1186, 46.4522]], "lib_ligne": "Montchanin → Paray", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Montchanin>Paray", "region": "Bourgogne-Franche-Comté", "type_marche": "TER", "lot": "Bourgogne-Ouest-Nivernais"}, {"coords": [[4.8357, 45.764], [3.3333, 46.5653]], "lib_ligne": "Lyon → Moulins", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Lyon>Moulins", "region": "Bourgogne-Franche-Comté", "type_marche": "TER", "lot": "Bourgogne-Ouest-Nivernais"}, {"coords": [[6.1844, 48.6921], [5.8833, 48.1833]], "lib_ligne": "Nancy → Contrexville", "statut": "attribue_concurrent", "operateur": "Transdev (groupement NGE/Banque des Territoires)", "relation": "Nancy>Contrexville", "region": "Grand Est", "type_marche": "TER", "lot": "Nancy-Contrexéville"}, {"coords": [[6.45, 48.1747], [6.95, 48.2833]], "lib_ligne": "Épinal → Saint-Die-des-vosges", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Épinal>Saint-Die-des-vosges>Strasbourg", "region": "Grand Est", "type_marche": "TER", "lot": "Bruche-Piémont-Vosges"}, {"coords": [[6.95, 48.2833], [7.7521, 48.5734]], "lib_ligne": "Saint-Die-des-vosges → Strasbourg", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Épinal>Saint-Die-des-vosges>Strasbourg", "region": "Grand Est", "type_marche": "TER", "lot": "Bruche-Piémont-Vosges"}, {"coords": [[7.4667, 48.26], [7.4933, 48.54]], "lib_ligne": "Sélestat → Molsheim", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Sélestat>Molsheim>Strasbourg", "region": "Grand Est", "type_marche": "TER", "lot": "Bruche-Piémont-Vosges"}, {"coords": [[7.4933, 48.54], [7.7521, 48.5734]], "lib_ligne": "Molsheim → Strasbourg", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Sélestat>Molsheim>Strasbourg", "region": "Grand Est", "type_marche": "TER", "lot": "Bruche-Piémont-Vosges"}, {"coords": [[6.1757, 49.1193], [6.6441, 49.7596]], "lib_ligne": "Metz → Trier", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Metz>Trier", "region": "Grand Est", "type_marche": "TER", "lot": "Lot transfrontalier"}, {"coords": [[6.1757, 49.1193], [6.9969, 49.2403]], "lib_ligne": "Metz → Saarbrücken", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Metz>Saarbrücken", "region": "Grand Est", "type_marche": "TER", "lot": "Lot transfrontalier"}, {"coords": [[7.7521, 48.5734], [6.9969, 49.2403]], "lib_ligne": "Strasbourg → Saarbrücken", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Strasbourg>Saarbrücken", "region": "Grand Est", "type_marche": "TER", "lot": "Lot transfrontalier"}, {"coords": [[7.7521, 48.5734], [7.9444, 49.0378]], "lib_ligne": "Strasbourg → Wissembourg", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Strasbourg>Wissembourg>Neustadt", "region": "Grand Est", "type_marche": "TER", "lot": "Lot transfrontalier"}, {"coords": [[7.9444, 49.0378], [8.1363, 49.3514]], "lib_ligne": "Wissembourg → Neustadt", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Strasbourg>Wissembourg>Neustadt", "region": "Grand Est", "type_marche": "TER", "lot": "Lot transfrontalier"}, {"coords": [[7.7521, 48.5734], [8.1769, 48.9769]], "lib_ligne": "Strasbourg → Lauterbourg", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Strasbourg>Lauterbourg>Wörth>Karlsruhe", "region": "Grand Est", "type_marche": "TER", "lot": "Lot transfrontalier"}, {"coords": [[8.1769, 48.9769], [8.2603, 49.0019]], "lib_ligne": "Lauterbourg → Wörth", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Strasbourg>Lauterbourg>Wörth>Karlsruhe", "region": "Grand Est", "type_marche": "TER", "lot": "Lot transfrontalier"}, {"coords": [[8.2603, 49.0019], [8.4044, 49.0094]], "lib_ligne": "Wörth → Karlsruhe", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Strasbourg>Lauterbourg>Wörth>Karlsruhe", "region": "Grand Est", "type_marche": "TER", "lot": "Lot transfrontalier"}, {"coords": [[7.7521, 48.5734], [7.9411, 48.4733]], "lib_ligne": "Strasbourg → Offenburg", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Strasbourg>Offenburg", "region": "Grand Est", "type_marche": "TER", "lot": "Lot transfrontalier"}, {"coords": [[7.3389, 47.7483], [7.6269, 47.8094]], "lib_ligne": "Mulhouse → Müllheim", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Mulhouse>Müllheim", "region": "Grand Est", "type_marche": "TER", "lot": "Lot transfrontalier"}, {"coords": [[3.9583, 49.0417], [4.0317, 49.2583]], "lib_ligne": "Epernay → Reims", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Epernay>Reims>ChâteauThierry", "region": "Grand Est", "type_marche": "TER", "lot": "Étoile de Reims"}, {"coords": [[4.0317, 49.2583], [3.4033, 49.0447]], "lib_ligne": "Reims → ChâteauThierry", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Epernay>Reims>ChâteauThierry", "region": "Grand Est", "type_marche": "TER", "lot": "Étoile de Reims"}, {"coords": [[4.3667, 49.2083], [4.0317, 49.2583]], "lib_ligne": "ChampagneArdenneTGV → Reims", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "ChampagneArdenneTGV>Reims>Charleville-Mézières>Sedan", "region": "Grand Est", "type_marche": "TER", "lot": "Étoile de Reims"}, {"coords": [[4.0317, 49.2583], [4.7194, 49.7628]], "lib_ligne": "Reims → Charleville-Mézières", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "ChampagneArdenneTGV>Reims>Charleville-Mézières>Sedan", "region": "Grand Est", "type_marche": "TER", "lot": "Étoile de Reims"}, {"coords": [[4.7194, 49.7628], [4.9397, 49.7025]], "lib_ligne": "Charleville-Mézières → Sedan", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "ChampagneArdenneTGV>Reims>Charleville-Mézières>Sedan", "region": "Grand Est", "type_marche": "TER", "lot": "Étoile de Reims"}, {"coords": [[4.7194, 49.7628], [4.8258, 50.1367]], "lib_ligne": "Charleville-Mézières → Givet", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Charleville-Mézières>Givet", "region": "Grand Est", "type_marche": "TER", "lot": "Étoile de Reims"}, {"coords": [[4.7194, 49.7628], [4.0822, 49.9211]], "lib_ligne": "Charleville-mézières → Hirson", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Charleville-mézières>Hirson>Longuyon>Longwy/Thionville", "region": "Grand Est", "type_marche": "TER", "lot": "Étoile de Reims"}, {"coords": [[4.0822, 49.9211], [5.6, 49.45]], "lib_ligne": "Hirson → Longuyon", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Charleville-mézières>Hirson>Longuyon>Longwy/Thionville", "region": "Grand Est", "type_marche": "TER", "lot": "Étoile de Reims"}, {"coords": [[5.6, 49.45], [5.7633, 49.5186]], "lib_ligne": "Longuyon → Longwy/Thionville", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Charleville-mézières>Hirson>Longuyon>Longwy/Thionville", "region": "Grand Est", "type_marche": "TER", "lot": "Étoile de Reims"}, {"coords": [[4.0317, 49.2583], [4.3625, 48.9531]], "lib_ligne": "Reims → Châlons-en-Champagne", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Reims>Châlons-en-Champagne>Saint-Dizier>Chaumont>Culmont-Chalindrey>Dijon", "region": "Grand Est", "type_marche": "TER", "lot": "Étoile de Reims"}, {"coords": [[4.3625, 48.9531], [4.9497, 48.6364]], "lib_ligne": "Châlons-en-Champagne → Saint-Dizier", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Reims>Châlons-en-Champagne>Saint-Dizier>Chaumont>Culmont-Chalindrey>Dijon", "region": "Grand Est", "type_marche": "TER", "lot": "Étoile de Reims"}, {"coords": [[4.9497, 48.6364], [5.1389, 48.1133]], "lib_ligne": "Saint-Dizier → Chaumont", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Reims>Châlons-en-Champagne>Saint-Dizier>Chaumont>Culmont-Chalindrey>Dijon", "region": "Grand Est", "type_marche": "TER", "lot": "Étoile de Reims"}, {"coords": [[5.1389, 48.1133], [5.4833, 47.8464]], "lib_ligne": "Chaumont → Culmont-Chalindrey", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Reims>Châlons-en-Champagne>Saint-Dizier>Chaumont>Culmont-Chalindrey>Dijon", "region": "Grand Est", "type_marche": "TER", "lot": "Étoile de Reims"}, {"coords": [[5.4833, 47.8464], [5.0415, 47.322]], "lib_ligne": "Culmont-Chalindrey → Dijon", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Reims>Châlons-en-Champagne>Saint-Dizier>Chaumont>Culmont-Chalindrey>Dijon", "region": "Grand Est", "type_marche": "TER", "lot": "Étoile de Reims"}, {"coords": [[4.0317, 49.2583], [3.6822, 49.3111]], "lib_ligne": "Reims → Fismes", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Reims>Fismes", "region": "Grand Est", "type_marche": "TER", "lot": "Étoile de Reims"}, {"coords": [[4.0317, 49.2583], [3.6244, 49.5639]], "lib_ligne": "Reims → Laon", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Reims>Laon", "region": "Grand Est", "type_marche": "TER", "lot": "Étoile de Reims"}, {"coords": [[2.2958, 49.8941], [3.2967, 49.6567]], "lib_ligne": "Amiens → Tergnier", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Amiens>Tergnier>Laon", "region": "Hauts-de-France", "type_marche": "TER", "lot": "Étoile d'Amiens"}, {"coords": [[3.2967, 49.6567], [3.6244, 49.5639]], "lib_ligne": "Tergnier → Laon", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Amiens>Tergnier>Laon", "region": "Hauts-de-France", "type_marche": "TER", "lot": "Étoile d'Amiens"}, {"coords": [[2.2958, 49.8941], [3.2875, 49.8478]], "lib_ligne": "Amiens → Saint-Quentin", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Amiens>Saint-Quentin", "region": "Hauts-de-France", "type_marche": "TER", "lot": "Étoile d'Amiens"}, {"coords": [[2.2958, 49.8941], [2.6519, 50.0031]], "lib_ligne": "Amiens → Albert", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Amiens>Albert>Lille", "region": "Hauts-de-France", "type_marche": "TER", "lot": "Étoile d'Amiens"}, {"coords": [[2.6519, 50.0031], [3.0573, 50.6292]], "lib_ligne": "Albert → Lille", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Amiens>Albert>Lille", "region": "Hauts-de-France", "type_marche": "TER", "lot": "Étoile d'Amiens"}, {"coords": [[2.2958, 49.8941], [1.8344, 50.1058]], "lib_ligne": "Amiens → Abbeville", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Amiens>Abbeville", "region": "Hauts-de-France", "type_marche": "TER", "lot": "Étoile d'Amiens"}, {"coords": [[2.0808, 49.4294], [1.7694, 49.6967]], "lib_ligne": "Beauvais → Abancourt", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Beauvais>Abancourt>LeTréport", "region": "Hauts-de-France", "type_marche": "TER", "lot": "Étoile d'Amiens"}, {"coords": [[1.7694, 49.6967], [1.3767, 50.0603]], "lib_ligne": "Abancourt → LeTréport", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Beauvais>Abancourt>LeTréport", "region": "Hauts-de-France", "type_marche": "TER", "lot": "Étoile d'Amiens"}, {"coords": [[2.2958, 49.8941], [2.4753, 49.2606]], "lib_ligne": "Amiens → Creil", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Amiens>Creil", "region": "Hauts-de-France", "type_marche": "TER", "lot": "Étoile d'Amiens"}, {"coords": [[2.2958, 49.8941], [2.5708, 49.6475]], "lib_ligne": "Amiens → Montdidier", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Amiens>Montdidier>Compiègne", "region": "Hauts-de-France", "type_marche": "TER", "lot": "Étoile d'Amiens"}, {"coords": [[2.5708, 49.6475], [2.8261, 49.4178]], "lib_ligne": "Montdidier → Compiègne", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Amiens>Montdidier>Compiègne", "region": "Hauts-de-France", "type_marche": "TER", "lot": "Étoile d'Amiens"}, {"coords": [[2.2958, 49.8941], [1.0993, 49.4432]], "lib_ligne": "Amiens → Rouen", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Amiens>Rouen", "region": "Hauts-de-France", "type_marche": "TER", "lot": "Étoile d'Amiens"}, {"coords": [[2.3522, 48.8566], [2.4753, 49.2606]], "lib_ligne": "Paris → Creil", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Paris>Creil>Amiens>Calais", "region": "Hauts-de-France", "type_marche": "TER", "lot": "Radiales parisiennes"}, {"coords": [[2.4753, 49.2606], [2.2958, 49.8941]], "lib_ligne": "Creil → Amiens", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Paris>Creil>Amiens>Calais", "region": "Hauts-de-France", "type_marche": "TER", "lot": "Radiales parisiennes"}, {"coords": [[2.2958, 49.8941], [1.8587, 50.9513]], "lib_ligne": "Amiens → Calais", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Paris>Creil>Amiens>Calais", "region": "Hauts-de-France", "type_marche": "TER", "lot": "Radiales parisiennes"}, {"coords": [[2.3522, 48.8566], [2.4753, 49.2606]], "lib_ligne": "Paris → Creil", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Paris>Creil>Compiègne>Saint-Quentin>Maubeuge/Cambrai", "region": "Hauts-de-France", "type_marche": "TER", "lot": "Radiales parisiennes"}, {"coords": [[2.4753, 49.2606], [2.8261, 49.4178]], "lib_ligne": "Creil → Compiègne", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Paris>Creil>Compiègne>Saint-Quentin>Maubeuge/Cambrai", "region": "Hauts-de-France", "type_marche": "TER", "lot": "Radiales parisiennes"}, {"coords": [[2.8261, 49.4178], [3.2875, 49.8478]], "lib_ligne": "Compiègne → Saint-Quentin", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Paris>Creil>Compiègne>Saint-Quentin>Maubeuge/Cambrai", "region": "Hauts-de-France", "type_marche": "TER", "lot": "Radiales parisiennes"}, {"coords": [[3.2875, 49.8478], [3.9731, 50.2783]], "lib_ligne": "Saint-Quentin → Maubeuge/Cambrai", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Paris>Creil>Compiègne>Saint-Quentin>Maubeuge/Cambrai", "region": "Hauts-de-France", "type_marche": "TER", "lot": "Radiales parisiennes"}, {"coords": [[2.3522, 48.8566], [3.6244, 49.5639]], "lib_ligne": "Paris → Laon", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Paris>Laon", "region": "Hauts-de-France", "type_marche": "TER", "lot": "Radiales parisiennes"}, {"coords": [[2.0808, 49.4294], [2.3522, 48.8566]], "lib_ligne": "Beauvais → Paris", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Beauvais>Paris", "region": "Hauts-de-France", "type_marche": "TER", "lot": "Radiales parisiennes"}, {"coords": [[2.2958, 49.8941], [2.4753, 49.2606]], "lib_ligne": "Amiens → Creil", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Amiens>Creil>Roissy", "region": "Hauts-de-France", "type_marche": "TER", "lot": "Radiales parisiennes"}, {"coords": [[2.4753, 49.2606], [2.5479, 49.0097]], "lib_ligne": "Creil → Roissy", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Amiens>Creil>Roissy", "region": "Hauts-de-France", "type_marche": "TER", "lot": "Radiales parisiennes"}, {"coords": [[3.2875, 49.8478], [2.4753, 49.2606]], "lib_ligne": "Saint-Quentin → Creil", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Saint-Quentin>Creil>Roissy", "region": "Hauts-de-France", "type_marche": "TER", "lot": "Radiales parisiennes"}, {"coords": [[2.4753, 49.2606], [2.5479, 49.0097]], "lib_ligne": "Creil → Roissy", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Saint-Quentin>Creil>Roissy", "region": "Hauts-de-France", "type_marche": "TER", "lot": "Radiales parisiennes"}, {"coords": [[2.7775, 50.2919], [2.7775, 50.2919]], "lib_ligne": "Saint-pol-sur-ternoise → Arras", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Saint-pol-sur-ternoise>Arras", "region": "Hauts-de-France", "type_marche": "TER", "lot": "Étoile de Saint-Pol-sur-Ternoise"}, {"coords": [[2.7775, 50.2919], [2.6408, 50.5292]], "lib_ligne": "Saint-pol-sur-ternoise → Béthune", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Saint-pol-sur-ternoise>Béthune", "region": "Hauts-de-France", "type_marche": "TER", "lot": "Étoile de Saint-Pol-sur-Ternoise"}, {"coords": [[2.7775, 50.2919], [1.6414, 50.5158]], "lib_ligne": "Saint-pol-sur-ternoise → Etaples", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Saint-pol-sur-ternoise>Etaples", "region": "Hauts-de-France", "type_marche": "TER", "lot": "Étoile de Saint-Pol-sur-Ternoise"}, {"coords": [[-1.5536, 47.2184], [-1.4997, 47.4378]], "lib_ligne": "Nantes → Nort-sur-Erdre", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Nantes>Nort-sur-Erdre", "region": "Pays de la Loire", "type_marche": "TER", "lot": "Tram-train"}, {"coords": [[-1.5536, 47.2184], [-1.3758, 47.7189]], "lib_ligne": "Nantes → Chateaubriand", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Nantes>Chateaubriand", "region": "Pays de la Loire", "type_marche": "TER", "lot": "Tram-train"}, {"coords": [[-1.5536, 47.2184], [-1.2817, 47.0867]], "lib_ligne": "Nantes → Clisson", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Nantes>Clisson", "region": "Pays de la Loire", "type_marche": "TER", "lot": "Tram-train"}, {"coords": [[-1.5536, 47.2184], [-2.1028, 47.1158]], "lib_ligne": "Nantes → Pornic", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Nantes>Pornic", "region": "Pays de la Loire", "type_marche": "TER", "lot": "Sud Loire"}, {"coords": [[-1.5536, 47.2184], [-1.9394, 46.6958]], "lib_ligne": "Nantes → Saint-Gilles-Croix-de-vie", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Nantes>Saint-Gilles-Croix-de-vie", "region": "Pays de la Loire", "type_marche": "TER", "lot": "Sud Loire"}, {"coords": [[-1.5536, 47.2184], [-1.4269, 46.67]], "lib_ligne": "Nantes → LaRoche-sur-yon", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Nantes>LaRoche-sur-yon>LesSablesd'olonne", "region": "Pays de la Loire", "type_marche": "TER", "lot": "Sud Loire"}, {"coords": [[-1.4269, 46.67], [-1.7842, 46.4969]], "lib_ligne": "LaRoche-sur-yon → LesSablesd'olonne", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Nantes>LaRoche-sur-yon>LesSablesd'olonne", "region": "Pays de la Loire", "type_marche": "TER", "lot": "Sud Loire"}, {"coords": [[-1.5536, 47.2184], [-1.1511, 46.1603]], "lib_ligne": "Nantes → LaRochelle", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Nantes>LaRochelle", "region": "Pays de la Loire", "type_marche": "TER", "lot": "Sud Loire"}, {"coords": [[-1.5536, 47.2184], [-0.8792, 47.0589]], "lib_ligne": "Nantes → Cholet", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Nantes>Cholet", "region": "Pays de la Loire", "type_marche": "TER", "lot": "Sud Loire"}, {"coords": [[-0.5632, 47.4784], [-0.8792, 47.0589]], "lib_ligne": "Angers → Cholet", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Angers>Cholet", "region": "Pays de la Loire", "type_marche": "TER", "lot": "Sud Loire"}, {"coords": [[5.3698, 43.2965], [5.928, 43.1242]], "lib_ligne": "Marseille → Toulon", "statut": "attribue_concurrent", "operateur": "Transdev", "relation": "Marseille>Toulon>Nice", "region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Intermétropoles"}, {"coords": [[5.928, 43.1242], [7.262, 43.7102]], "lib_ligne": "Toulon → Nice", "statut": "attribue_concurrent", "operateur": "Transdev", "relation": "Marseille>Toulon>Nice", "region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Intermétropoles"}, {"coords": [[6.4822, 43.4656], [7.262, 43.7102]], "lib_ligne": "LesArcsDraguignan → Nice", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "LesArcsDraguignan>Nice>Vintimille", "region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Azur"}, {"coords": [[7.262, 43.7102], [7.5083, 43.7897]], "lib_ligne": "Nice → Vintimille", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "LesArcsDraguignan>Nice>Vintimille", "region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Azur"}, {"coords": [[7.0174, 43.5528], [6.9214, 43.6586]], "lib_ligne": "Cannes → Grasse", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Cannes>Grasse", "region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Azur"}, {"coords": [[7.262, 43.7102], [7.5139, 43.9331]], "lib_ligne": "Nice → Breil-sur-Roya", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Nice>Breil-sur-Roya>Tende", "region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Azur"}, {"coords": [[7.5139, 43.9331], [7.5942, 44.0889]], "lib_ligne": "Breil-sur-Roya → Tende", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Nice>Breil-sur-Roya>Tende", "region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Azur"}, {"coords": [[5.3698, 43.2965], [5.5708, 43.2917]], "lib_ligne": "Marseille → Aubagne", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Marseille>Aubagne>Toulon>Hyères", "region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Lot 3"}, {"coords": [[5.5708, 43.2917], [5.928, 43.1242]], "lib_ligne": "Aubagne → Toulon", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Marseille>Aubagne>Toulon>Hyères", "region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Lot 3"}, {"coords": [[5.928, 43.1242], [6.1286, 43.1203]], "lib_ligne": "Toulon → Hyères", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Marseille>Aubagne>Toulon>Hyères", "region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Lot 3"}, {"coords": [[5.3698, 43.2965], [5.928, 43.1242]], "lib_ligne": "Marseille → Toulon", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Marseille>Toulon>LesArcsDraguignan", "region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Lot 3"}, {"coords": [[5.928, 43.1242], [6.4822, 43.4656]], "lib_ligne": "Toulon → LesArcsDraguignan", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Marseille>Toulon>LesArcsDraguignan", "region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Lot 3"}, {"coords": [[5.3698, 43.2965], [5.4474, 43.5297]], "lib_ligne": "Marseille → Aix-en-provence", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Marseille>Aix-en-provence>Pertuis", "region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Lot 3"}, {"coords": [[5.4474, 43.5297], [5.5028, 43.6936]], "lib_ligne": "Aix-en-provence → Pertuis", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Marseille>Aix-en-provence>Pertuis", "region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Lot 3"}, {"coords": [[5.3698, 43.2965], [6.0789, 44.5597]], "lib_ligne": "Marseille → Gap", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Marseille>Gap>Briançon", "region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Lot 3"}, {"coords": [[6.0789, 44.5597], [6.6414, 44.895]], "lib_ligne": "Gap → Briançon", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Marseille>Gap>Briançon", "region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Lot 3"}, {"coords": [[6.6414, 44.895], [6.0789, 44.5597]], "lib_ligne": "Briançon → Gap", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Briançon>Gap>Valence>Romans", "region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Lot 3"}, {"coords": [[6.0789, 44.5597], [4.892, 44.9333]], "lib_ligne": "Gap → Valence", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Briançon>Gap>Valence>Romans", "region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Lot 3"}, {"coords": [[4.892, 44.9333], [5.0461, 45.0456]], "lib_ligne": "Valence → Romans", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Briançon>Gap>Valence>Romans", "region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Lot 3"}, {"coords": [[5.3698, 43.2965], [5.0042, 43.585]], "lib_ligne": "Marseille → Miramas", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Marseille>Miramas", "region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Lot 4"}, {"coords": [[5.3698, 43.2965], [4.8056, 43.9483]], "lib_ligne": "Marseille → Avignon", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Marseille>Avignon", "region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Lot 4"}, {"coords": [[5.3698, 43.2965], [4.8056, 43.9483]], "lib_ligne": "Marseille → Avignon", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Marseille>Avignon>Valence>Lyon", "region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Lot 4"}, {"coords": [[4.8056, 43.9483], [4.892, 44.9333]], "lib_ligne": "Avignon → Valence", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Marseille>Avignon>Valence>Lyon", "region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Lot 4"}, {"coords": [[4.892, 44.9333], [4.8357, 45.764]], "lib_ligne": "Valence → Lyon", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Marseille>Avignon>Valence>Lyon", "region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Lot 4"}, {"coords": [[5.3698, 43.2965], [4.3601, 43.8367]], "lib_ligne": "Marseille → Nîmes", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Marseille>Nîmes>Montpellier", "region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Lot 4"}, {"coords": [[4.3601, 43.8367], [3.8767, 43.6108]], "lib_ligne": "Nîmes → Montpellier", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Marseille>Nîmes>Montpellier", "region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Lot 4"}, {"coords": [[4.8056, 43.9483], [5.0489, 44.0553]], "lib_ligne": "Avignon → Carpentras", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Avignon>Carpentras", "region": "Provence-Alpes-Côte d'Azur", "type_marche": "TER", "lot": "Lot 4"}, {"coords": [[-0.3707, 49.1829], [-1.4442, 49.0475]], "lib_ligne": "Caen → Coutances", "statut": "attribue_concurrent", "operateur": "RATP", "relation": "Caen>Coutances", "region": "Normandie", "type_marche": "TER", "lot": "Étoile de Caen"}, {"coords": [[-0.3707, 49.1829], [-1.0914, 49.1158]], "lib_ligne": "Caen → Saint-Lô", "statut": "attribue_concurrent", "operateur": "RATP", "relation": "Caen>Saint-Lô", "region": "Normandie", "type_marche": "TER", "lot": "Étoile de Caen"}, {"coords": [[-0.3707, 49.1829], [1.1508, 49.0247]], "lib_ligne": "Caen → Evreux", "statut": "attribue_concurrent", "operateur": "RATP", "relation": "Caen>Evreux", "region": "Normandie", "type_marche": "TER", "lot": "Étoile de Caen"}, {"coords": [[-0.3707, 49.1829], [-1.6222, 49.6337]], "lib_ligne": "Caen → Cherbourg", "statut": "attribue_concurrent", "operateur": "RATP", "relation": "Caen>Cherbourg", "region": "Normandie", "type_marche": "TER", "lot": "Étoile de Caen"}, {"coords": [[-0.3707, 49.1829], [1.0993, 49.4432]], "lib_ligne": "Caen → Rouen", "statut": "attribue_concurrent", "operateur": "RATP", "relation": "Caen>Rouen", "region": "Normandie", "type_marche": "TER", "lot": "Étoile de Caen"}, {"coords": [[-0.3707, 49.1829], [0.2258, 49.1458]], "lib_ligne": "Caen → Lisieux", "statut": "attribue_concurrent", "operateur": "RATP", "relation": "Caen>Lisieux", "region": "Normandie", "type_marche": "TER", "lot": "Étoile de Caen"}, {"coords": [[-0.3707, 49.1829], [-1.5972, 48.8378]], "lib_ligne": "Caen → Granville", "statut": "attribue_concurrent", "operateur": "RATP", "relation": "Caen>Granville", "region": "Normandie", "type_marche": "TER", "lot": "Étoile de Caen"}, {"coords": [[-0.3707, 49.1829], [-1.6778, 48.1173]], "lib_ligne": "Caen → Rennes", "statut": "attribue_concurrent", "operateur": "RATP", "relation": "Caen>Rennes", "region": "Normandie", "type_marche": "TER", "lot": "Étoile de Caen"}, {"coords": [[0.2258, 49.1458], [0.0808, 49.3667]], "lib_ligne": "Lisieux → Trouville-Deauville", "statut": "attribue_concurrent", "operateur": "RATP", "relation": "Lisieux>Trouville-Deauville", "region": "Normandie", "type_marche": "TER", "lot": "Étoile de Caen"}, {"coords": [[0.0808, 49.3667], [-0.1031, 49.2867]], "lib_ligne": "Trouville-Deauville → Dives-Cabourg", "statut": "attribue_concurrent", "operateur": "RATP", "relation": "Trouville-Deauville>Dives-Cabourg", "region": "Normandie", "type_marche": "TER", "lot": "Étoile de Caen"}, {"coords": [[-1.1511, 46.1603], [-0.9608, 45.9364]], "lib_ligne": "LaRochelle → Rochefort", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "LaRochelle>Rochefort>Saintes>Bordeaux", "region": "Nouvelle-Aquitaine", "type_marche": "TER", "lot": "Poitou-charentes"}, {"coords": [[-0.9608, 45.9364], [-0.6333, 45.7467]], "lib_ligne": "Rochefort → Saintes", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "LaRochelle>Rochefort>Saintes>Bordeaux", "region": "Nouvelle-Aquitaine", "type_marche": "TER", "lot": "Poitou-charentes"}, {"coords": [[-0.6333, 45.7467], [-0.5792, 44.8378]], "lib_ligne": "Saintes → Bordeaux", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "LaRochelle>Rochefort>Saintes>Bordeaux", "region": "Nouvelle-Aquitaine", "type_marche": "TER", "lot": "Poitou-charentes"}, {"coords": [[0.16, 45.65], [-0.6333, 45.7467]], "lib_ligne": "Angoulême → Saintes", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Angoulême>Saintes>Royan", "region": "Nouvelle-Aquitaine", "type_marche": "TER", "lot": "Poitou-charentes"}, {"coords": [[-0.6333, 45.7467], [-1.0281, 45.625]], "lib_ligne": "Saintes → Royan", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Angoulême>Saintes>Royan", "region": "Nouvelle-Aquitaine", "type_marche": "TER", "lot": "Poitou-charentes"}, {"coords": [[-0.4594, 46.3236], [-0.6333, 45.7467]], "lib_ligne": "Niort → Saintes", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Niort>Saintes>Royan", "region": "Nouvelle-Aquitaine", "type_marche": "TER", "lot": "Poitou-charentes"}, {"coords": [[-0.6333, 45.7467], [-1.0281, 45.625]], "lib_ligne": "Saintes → Royan", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Niort>Saintes>Royan", "region": "Nouvelle-Aquitaine", "type_marche": "TER", "lot": "Poitou-charentes"}, {"coords": [[0.3404, 46.5802], [-0.4594, 46.3236]], "lib_ligne": "Poitiers → Niort", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Poitiers>Niort>LaRochelle", "region": "Nouvelle-Aquitaine", "type_marche": "TER", "lot": "Poitou-charentes"}, {"coords": [[-0.4594, 46.3236], [-1.1511, 46.1603]], "lib_ligne": "Niort → LaRochelle", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Poitiers>Niort>LaRochelle", "region": "Nouvelle-Aquitaine", "type_marche": "TER", "lot": "Poitou-charentes"}, {"coords": [[0.6848, 47.3941], [0.5461, 46.8178]], "lib_ligne": "Tours → Châtellerault", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Tours>Châtellerault>Poitiers", "region": "Nouvelle-Aquitaine", "type_marche": "TER", "lot": "Poitou-charentes"}, {"coords": [[0.5461, 46.8178], [0.3404, 46.5802]], "lib_ligne": "Châtellerault → Poitiers", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Tours>Châtellerault>Poitiers", "region": "Nouvelle-Aquitaine", "type_marche": "TER", "lot": "Poitou-charentes"}, {"coords": [[0.3404, 46.5802], [0.16, 45.65]], "lib_ligne": "Poitiers → Angoulême", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Poitiers>Angoulême", "region": "Nouvelle-Aquitaine", "type_marche": "TER", "lot": "Poitou-charentes"}, {"coords": [[0.5461, 46.8178], [0.3404, 46.5802]], "lib_ligne": "Châtellerault → Poitiers", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Châtellerault>Poitiers>Angoulême", "region": "Nouvelle-Aquitaine", "type_marche": "TER", "lot": "Poitou-charentes"}, {"coords": [[0.3404, 46.5802], [0.16, 45.65]], "lib_ligne": "Poitiers → Angoulême", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Châtellerault>Poitiers>Angoulême", "region": "Nouvelle-Aquitaine", "type_marche": "TER", "lot": "Poitou-charentes"}, {"coords": [[0.16, 45.65], [-0.5792, 44.8378]], "lib_ligne": "Angoulême → Bordeaux", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Angoulême>Bordeaux", "region": "Nouvelle-Aquitaine", "type_marche": "TER", "lot": "Poitou-charentes"}, {"coords": [[-1.5536, 47.2184], [-0.5792, 44.8378]], "lib_ligne": "Nantes → Bordeaux", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Nantes>Bordeaux", "region": "France entière (État)", "type_marche": "TET", "lot": "Bordeaux, Nantes, Lyon"}, {"coords": [[-1.5536, 47.2184], [4.8357, 45.764]], "lib_ligne": "Nantes → Lyon", "statut": "attribue_SNCF", "operateur": "SNCF", "relation": "Nantes>Lyon", "region": "France entière (État)", "type_marche": "TET", "lot": "Bordeaux, Nantes, Lyon"}, {"coords": [[2.3522, 48.8566], [3.087, 45.7772]], "lib_ligne": "Paris → Clermont", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Paris>Clermont", "region": "France entière (État)", "type_marche": "TET", "lot": "ParisClermont"}, {"coords": [[2.3522, 48.8566], [1.2611, 45.8336]], "lib_ligne": "Paris → Limoges", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Paris>Limoges>Toulouse", "region": "France entière (État)", "type_marche": "TET", "lot": "ParisLimogesToulouse"}, {"coords": [[1.2611, 45.8336], [1.4442, 43.6047]], "lib_ligne": "Limoges → Toulouse", "statut": "mis_en_concurrence_pas_attribue", "operateur": "Non attribué", "relation": "Paris>Limoges>Toulouse", "region": "France entière (État)", "type_marche": "TET", "lot": "ParisLimogesToulouse"}];
+        
+        var lignesParStatut = {
+            'attribue_SNCF': [],
+            'mis_en_concurrence_pas_attribue': [],
+            'attribue_concurrent': []
         };
         
-        function createPopup(ligne, regionVisu) {
-            const operateur = ligne.operateur || 'Non attribué';
-            const statusClass = ligne.statut === 'attribue_SNCF' ? 'status-sncf' : 
-                                ligne.statut === 'attribue_concurrent' ? 'status-concurrent' : 'status-encours';
-            return `<div class="popup-title">${ligne.relation}</div>
-                <div class="popup-info">
-                    <div class="popup-row"><span class="popup-label">Région:</span><span class="popup-value">${ligne.region}</span></div>
-                    <div class="popup-row"><span class="popup-label">Type:</span><span class="popup-value">${ligne.type_marche}</span></div>
-                    <div class="popup-row"><span class="popup-label">Lot:</span><span class="popup-value">${ligne.lot}</span></div>
-                    <div class="popup-row"><span class="popup-label">Statut:</span><span class="status-badge ${statusClass}">${statusLabels[ligne.statut]}</span></div>
-                    ${operateur !== 'Non attribué' ? `<div class="popup-row"><span class="popup-label">Opérateur:</span><span class="popup-value">${operateur}</span></div>` : ''}
-                    <hr style="margin: 8px 0;"><div style="font-size: 11px; color: #888;">Tracé de la région: ${regionVisu}</div>
-                </div>`;
-        }
+        lignes.forEach(function(ligne) {
+            lignesParStatut[ligne.statut].push(ligne);
+        });
         
-        fetch('railway_data_complete.json')
-            .then(response => response.json())
-            .then(data => {
-                const tracesByRegion = data.traces_par_region;
-                const regionMapping = data.region_mapping;
-                const etatLignes = data.etat_lignes;
+        ['attribue_SNCF', 'mis_en_concurrence_pas_attribue', 'attribue_concurrent'].forEach(function(statut) {
+            lignesParStatut[statut].forEach(function(ligne) {
+                var coords = ligne.coords;
+                var latLngs = coords.map(c => [c[1], c[0]]);
                 
-                // Créer un index: pour chaque ancienne région, quel statut?
-                const regionStatus = {};
-                etatLignes.forEach(ligne => {
-                    const anciennes = regionMapping[ligne.region] || [ligne.region];
-                    anciennes.forEach(old => {
-                        if (old === '*') {
-                            // Toutes les régions
-                            Object.keys(tracesByRegion).forEach(r => {
-                                if (!regionStatus[r]) regionStatus[r] = [];
-                                regionStatus[r].push(ligne);
-                            });
-                        } else {
-                            if (!regionStatus[old]) regionStatus[old] = [];
-                            regionStatus[old].push(ligne);
-                        }
+                var style = styles[ligne.statut];
+                var polyline = L.polyline(latLngs, style).addTo(map);
+                
+                var popupContent = '<div><h3>' + ligne.lib_ligne + '</h3>';
+                
+                if (ligne.region) {
+                    popupContent += '<p><span class="popup-label"><strong>Région:</strong></span> ' + ligne.region + '</p>';
+                }
+                
+                if (ligne.relation) {
+                    popupContent += '<p><span class="popup-label"><strong>Relation:</strong></span> ' + ligne.relation + '</p>';
+                }
+                
+                if (ligne.lot) {
+                    popupContent += '<p><span class="popup-label"><strong>Lot:</strong></span> ' + ligne.lot + '</p>';
+                }
+                
+                var statutLabel = ligne.statut === 'attribue_SNCF' ? 'Attribué à SNCF' :
+                                 ligne.statut === 'attribue_concurrent' ? 'Attribué à un concurrent' :
+                                 'Mis en concurrence (non attribué)';
+                popupContent += '<p><span class="popup-label"><strong>Statut:</strong></span> ' + statutLabel + '</p>';
+                
+                if (ligne.operateur) {
+                    popupContent += '<p><span class="popup-label"><strong>Opérateur:</strong></span> ' + ligne.operateur + '</p>';
+                }
+                
+                popupContent += '</div>';
+                polyline.bindPopup(popupContent);
+                
+                polyline.on('mouseover', function(e) {
+                    this.setStyle({
+                        weight: style.weight + 3,
+                        opacity: 1
                     });
                 });
                 
-                let totalTraces = 0;
-                const counts = { 'attribue_SNCF': 0, 'attribue_concurrent': 0, 'mis_en_concurrence_pas_attribue': 0 };
-                
-                // Afficher les tracés des régions concernées
-                Object.entries(regionStatus).forEach(([regionName, lignesInfo]) => {
-                    const traces = tracesByRegion[regionName];
-                    if (!traces) return;
-                    
-                    // Déterminer le statut dominant (priorité: concurrent > SNCF > en_concurrence)
-                    let dominantStatus = null;
-                    if (lignesInfo.some(l => l.statut === 'attribue_concurrent')) {
-                        dominantStatus = 'attribue_concurrent';
-                    } else if (lignesInfo.some(l => l.statut === 'attribue_SNCF')) {
-                        dominantStatus = 'attribue_SNCF';
-                    } else {
-                        dominantStatus = 'mis_en_concurrence_pas_attribue';
-                    }
-                    
-                    const color = statusColors[dominantStatus];
-                    const ligneRepresentative = lignesInfo.find(l => l.statut === dominantStatus) || lignesInfo[0];
-                    
-                    // Afficher les tracés
-                    traces.forEach(trace => {
-                        const simplified = trace.coords.filter((_, i) => i % 2 === 0 || i === trace.coords.length - 1);
-                        const latLngs = simplified.map(c => [c[1], c[0]]);
-                        
-                        if (latLngs.length >= 2) {
-                            const polyline = L.polyline(latLngs, {
-                                color: color,
-                                weight: 3,
-                                opacity: 0.7
-                            });
-                            polyline.bindPopup(createPopup(ligneRepresentative, regionName));
-                            polyline.addTo(map);
-                            totalTraces++;
-                        }
-                    });
+                polyline.on('mouseout', function(e) {
+                    this.setStyle(style);
                 });
-                
-                // Compter les lignes par statut
-                etatLignes.forEach(ligne => counts[ligne.statut]++);
-                
-                document.getElementById('count-sncf').textContent = counts['attribue_SNCF'];
-                document.getElementById('count-concurrent').textContent = counts['attribue_concurrent'];
-                document.getElementById('count-encours').textContent = counts['mis_en_concurrence_pas_attribue'];
-                document.getElementById('total-lines').textContent = totalTraces;
-                document.getElementById('loading').style.display = 'none';
-                
-                console.log('Carte chargée!');
-                console.log('Tracés affichés:', totalTraces);
-                console.log('Lignes référencées:', etatLignes.length);
-            })
-            .catch(error => {
-                console.error('Erreur:', error);
-                document.getElementById('loading').innerHTML = `
-                    <div style="color: #d32f2f;"><h3>Erreur de chargement</h3><p>${error.message}</p></div>
-                `;
             });
+        });
+        
+        var legend = L.control({position: 'bottomright'});
+        legend.onAdd = function(map) {
+            var div = L.DomUtil.create('div', 'legend');
+            div.innerHTML = '<h4>Ouverture à la concurrence TER</h4>';
+            
+            [
+                ['attribue_SNCF', 'Géré par SNCF', lignesParStatut['attribue_SNCF'].length],
+                ['attribue_concurrent', 'Géré par un concurrent', lignesParStatut['attribue_concurrent'].length],
+                ['mis_en_concurrence_pas_attribue', 'Mis en concurrence (non attribué)', lignesParStatut['mis_en_concurrence_pas_attribue'].length]
+            ].forEach(function(item) {
+                div.innerHTML += '<div class="legend-item">' +
+                    '<span class="legend-color" style="background-color: ' + styles[item[0]].color + ';"></span>' +
+                    '<span>' + item[1] + ' (' + item[2] + ')</span>' +
+                    '</div>';
+            });
+            
+            div.innerHTML += '<div class="legend-source">Source: Contexte (17/11/2025)<br>Données: 131 liaisons</div>';
+            return div;
+        };
+        legend.addTo(map);
+        
+        var info = L.control({position: 'topleft'});
+        info.onAdd = function(map) {
+            var div = L.DomUtil.create('div', 'info');
+            div.innerHTML = '<h4>🚄 Lignes TER</h4>' +
+                '<p>Ouverture à la concurrence</p>' +
+                '<p style="font-size: 11px; margin-top: 6px; color: #888;">Survolez ou cliquez sur une ligne</p>';
+            return div;
+        };
+        info.addTo(map);
     </script>
 </body>
 </html>
