@@ -88,6 +88,7 @@
             padding: 2px 8px;
             border-radius: 10px;
             margin-left: 8px;
+            font-weight: 600;
         }
         
         .leaflet-popup-content {
@@ -176,6 +177,35 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        
+        #filters {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            max-width: 300px;
+        }
+        
+        #filters h4 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            color: #333;
+        }
+        
+        .filter-checkbox {
+            display: flex;
+            align-items: center;
+            margin: 8px 0;
+            font-size: 13px;
+        }
+        
+        .filter-checkbox input {
+            margin-right: 8px;
+        }
     </style>
 </head>
 <body>
@@ -190,6 +220,16 @@
     </div>
     
     <div id="map"></div>
+    
+    <div id="filters">
+        <h4>🎨 Afficher les régions</h4>
+        <div class="filter-checkbox">
+            <input type="checkbox" id="filter-all" checked>
+            <label for="filter-all"><strong>Toutes les régions</strong></label>
+        </div>
+        <hr style="margin: 10px 0; border: none; border-top: 1px solid #ddd;">
+        <div id="region-filters"></div>
+    </div>
     
     <div id="legend">
         <h3>Légende</h3>
@@ -207,6 +247,10 @@
             <div class="legend-line" style="background: #FF9800;"></div>
             <span class="legend-text">Mis en concurrence (non attribué)</span>
             <span class="legend-count" id="count-encours">0</span>
+        </div>
+        <hr style="margin: 15px 0; border: none; border-top: 1px solid #ddd;">
+        <div style="font-size: 12px; color: #666;">
+            <strong>Total lignes affichées:</strong> <span id="total-lines">0</span>
         </div>
     </div>
 
@@ -236,29 +280,46 @@
             'mis_en_concurrence_pas_attribue': 'Mis en concurrence (non attribué)'
         };
         
-        // Compteurs
-        const counts = {
-            'attribue_SNCF': 0,
-            'attribue_concurrent': 0,
-            'mis_en_concurrence_pas_attribue': 0
+        // Mapping région JSON -> régions Excel (anciennes régions)
+        const regionMapping = {
+            'Bourgogne-Franche-Comté': ['Bourgogne', 'Franche-Comté'],
+            'Grand Est': ['Alsace', 'Champagne-Ardenne', 'Lorraine'],
+            'Hauts-de-France': ['Nord-Pas-de-Calais', 'Picardie'],
+            'Normandie': ['Haute-Normandie', 'Basse-Normandie'],
+            'Nouvelle-Aquitaine': ['Aquitaine', 'Limousin', 'Poitou-Charentes'],
+            'Provence-Alpes-Côte d\'Azur': ['Provence-Alpes-Côte-d\'Azur'],
+            'Pays de la Loire': ['Pays de la Loire'],
+            'France entière (État)': ['*'] // Wildcard pour toutes les régions
         };
         
-        // Fonction pour simplifier les coordonnées (prendre 1 point sur n)
-        function simplifyCoordinates(coords, interval = 5) {
-            if (coords.length <= interval * 2) return coords;
+        // Stocker toutes les polylines par région
+        const allPolylinesByRegion = {};
+        const regionLayers = {};
+        
+        // Fonction pour créer une popup avec info sur la région
+        function createRegionPopup(region, codeLigne, etatLignes) {
+            // Trouver les lignes correspondant à cette région
+            const lignesRegion = etatLignes.filter(l => {
+                const regions = regionMapping[l.region] || [l.region];
+                return regions.includes(region) || regions.includes('*');
+            });
             
-            const simplified = [coords[0]]; // Toujours garder le premier point
-            
-            for (let i = interval; i < coords.length - 1; i += interval) {
-                simplified.push(coords[i]);
+            if (lignesRegion.length === 0) {
+                return `
+                    <div class="popup-title">Ligne ${codeLigne}</div>
+                    <div class="popup-info">
+                        <div class="popup-row">
+                            <span class="popup-label">Région:</span>
+                            <span class="popup-value">${region}</span>
+                        </div>
+                        <div class="popup-row">
+                            <span class="popup-value">Aucune info d'état disponible</span>
+                        </div>
+                    </div>
+                `;
             }
             
-            simplified.push(coords[coords.length - 1]); // Toujours garder le dernier point
-            return simplified;
-        }
-        
-        // Fonction pour créer une popup
-        function createPopup(ligne) {
+            const ligne = lignesRegion[0]; // Prendre la première ligne correspondante
             const operateur = ligne.operateur || 'Non attribué';
             const statusClass = ligne.statut === 'attribue_SNCF' ? 'status-sncf' : 
                                 ligne.statut === 'attribue_concurrent' ? 'status-concurrent' : 
@@ -289,6 +350,10 @@
                         <span class="popup-value">${operateur}</span>
                     </div>
                     ` : ''}
+                    <hr style="margin: 8px 0;">
+                    <div style="font-size: 11px; color: #888;">
+                        Code ligne: ${codeLigne}
+                    </div>
                 </div>
             `;
         }
@@ -302,76 +367,148 @@
                 const geoData = data.geo_data;
                 const etatLignes = data.etat_lignes;
                 
-                // Pour chaque ligne dans etat_lignes, on essaie de trouver une correspondance géographique
-                // Comme on n'a pas de mapping direct, on va afficher toutes les lignes de manière générique
-                
-                // Créer des couches pour chaque statut
-                const layers = {
-                    'attribue_SNCF': L.layerGroup().addTo(map),
-                    'attribue_concurrent': L.layerGroup().addTo(map),
-                    'mis_en_concurrence_pas_attribue': L.layerGroup().addTo(map)
-                };
-                
-                // Mapping approximatif région JSON -> région Excel
-                const regionMapping = {
-                    'Bourgogne-Franche-Comté': ['Bourgogne', 'Franche-Comté'],
-                    'Grand Est': ['Alsace', 'Champagne-Ardenne', 'Lorraine'],
-                    'Hauts-de-France': ['Nord-Pas-de-Calais', 'Picardie'],
-                    'Normandie': ['Haute-Normandie', 'Basse-Normandie'],
-                    'Nouvelle-Aquitaine': ['Aquitaine', 'Limousin', 'Poitou-Charentes'],
-                    'Provence-Alpes-Côte d\'Azur': ['Provence-Alpes-Côte-d\'Azur'],
-                    'Pays de la Loire': ['Pays de la Loire']
-                };
-                
-                // Pour chaque ligne dans etat_lignes
+                // Créer un index des régions concernées par statut
+                const regionsByStatus = {};
                 etatLignes.forEach(ligne => {
                     const regions = regionMapping[ligne.region] || [ligne.region];
-                    
-                    // Trouver toutes les géométries correspondant aux régions
-                    let lignesGeo = [];
-                    Object.entries(geoData).forEach(([code, segments]) => {
-                        segments.forEach(segment => {
-                            if (regions.includes(segment.region)) {
-                                lignesGeo.push(segment.coordinates);
-                            }
-                        });
+                    regions.forEach(region => {
+                        if (!regionsByStatus[region]) {
+                            regionsByStatus[region] = {
+                                'attribue_SNCF': false,
+                                'attribue_concurrent': false,
+                                'mis_en_concurrence_pas_attribue': false
+                            };
+                        }
+                        regionsByStatus[region][ligne.statut] = true;
                     });
-                    
-                    // Si on a trouvé des géométries, afficher quelques unes représentatives
-                    if (lignesGeo.length > 0) {
-                        // Prendre un échantillon pour ne pas surcharger la carte
-                        const sample = Math.min(3, lignesGeo.length);
-                        for (let i = 0; i < sample; i++) {
-                            const idx = Math.floor(i * lignesGeo.length / sample);
-                            const coords = simplifyCoordinates(lignesGeo[idx], 5);
-                            
-                            // Convertir les coordonnées [lon, lat] en [lat, lon] pour Leaflet
-                            const latLngs = coords.map(c => [c[1], c[0]]);
-                            
-                            const polyline = L.polyline(latLngs, {
-                                color: statusColors[ligne.statut],
-                                weight: 3,
-                                opacity: 0.7
-                            });
-                            
-                            polyline.bindPopup(createPopup(ligne));
-                            polyline.addTo(layers[ligne.statut]);
+                });
+                
+                console.log('Régions par statut:', regionsByStatus);
+                
+                // Afficher TOUTES les lignes de toutes les régions concernées
+                let totalLines = 0;
+                
+                Object.entries(geoData).forEach(([codeLigne, segments]) => {
+                    segments.forEach(segment => {
+                        const region = segment.region;
+                        const coords = segment.coordinates;
+                        
+                        // Déterminer le statut de cette région
+                        let statut = null;
+                        let color = '#888888'; // Gris par défaut
+                        
+                        if (regionsByStatus[region]) {
+                            // Priorité: concurrent > SNCF > en_concurrence
+                            if (regionsByStatus[region]['attribue_concurrent']) {
+                                statut = 'attribue_concurrent';
+                                color = statusColors['attribue_concurrent'];
+                            } else if (regionsByStatus[region]['attribue_SNCF']) {
+                                statut = 'attribue_SNCF';
+                                color = statusColors['attribue_SNCF'];
+                            } else if (regionsByStatus[region]['mis_en_concurrence_pas_attribue']) {
+                                statut = 'mis_en_concurrence_pas_attribue';
+                                color = statusColors['mis_en_concurrence_pas_attribue'];
+                            }
                         }
                         
-                        counts[ligne.statut]++;
-                    }
+                        // Simplifier les coordonnées
+                        const simplified = coords.filter((_, i) => i % 3 === 0 || i === coords.length - 1);
+                        
+                        // Convertir [lon, lat] en [lat, lon] pour Leaflet
+                        const latLngs = simplified.map(c => [c[1], c[0]]);
+                        
+                        if (latLngs.length >= 2) {
+                            const polyline = L.polyline(latLngs, {
+                                color: color,
+                                weight: statut ? 4 : 2,
+                                opacity: statut ? 0.8 : 0.3
+                            });
+                            
+                            polyline.bindPopup(createRegionPopup(region, codeLigne, etatLignes));
+                            
+                            // Stocker par région
+                            if (!allPolylinesByRegion[region]) {
+                                allPolylinesByRegion[region] = [];
+                            }
+                            allPolylinesByRegion[region].push({
+                                polyline: polyline,
+                                statut: statut
+                            });
+                            
+                            // Créer le layer si nécessaire
+                            if (!regionLayers[region]) {
+                                regionLayers[region] = L.layerGroup().addTo(map);
+                            }
+                            
+                            polyline.addTo(regionLayers[region]);
+                            totalLines++;
+                        }
+                    });
                 });
+                
+                // Compter les lignes par statut
+                const counts = {
+                    'attribue_SNCF': etatLignes.filter(l => l.statut === 'attribue_SNCF').length,
+                    'attribue_concurrent': etatLignes.filter(l => l.statut === 'attribue_concurrent').length,
+                    'mis_en_concurrence_pas_attribue': etatLignes.filter(l => l.statut === 'mis_en_concurrence_pas_attribue').length
+                };
                 
                 // Mettre à jour les compteurs
                 document.getElementById('count-sncf').textContent = counts['attribue_SNCF'];
                 document.getElementById('count-concurrent').textContent = counts['attribue_concurrent'];
                 document.getElementById('count-encours').textContent = counts['mis_en_concurrence_pas_attribue'];
+                document.getElementById('total-lines').textContent = totalLines;
+                
+                // Créer les filtres par région
+                const regionFiltersDiv = document.getElementById('region-filters');
+                const sortedRegions = Object.keys(allPolylinesByRegion).sort();
+                
+                sortedRegions.forEach(region => {
+                    const div = document.createElement('div');
+                    div.className = 'filter-checkbox';
+                    div.innerHTML = `
+                        <input type="checkbox" id="filter-${region}" checked>
+                        <label for="filter-${region}">${region} (${allPolylinesByRegion[region].length})</label>
+                    `;
+                    regionFiltersDiv.appendChild(div);
+                    
+                    // Gérer le changement
+                    document.getElementById(`filter-${region}`).addEventListener('change', function(e) {
+                        if (e.target.checked) {
+                            regionLayers[region].addTo(map);
+                        } else {
+                            map.removeLayer(regionLayers[region]);
+                        }
+                        updateFilterAll();
+                    });
+                });
+                
+                // Gérer le filtre "Toutes les régions"
+                document.getElementById('filter-all').addEventListener('change', function(e) {
+                    sortedRegions.forEach(region => {
+                        const checkbox = document.getElementById(`filter-${region}`);
+                        checkbox.checked = e.target.checked;
+                        if (e.target.checked) {
+                            regionLayers[region].addTo(map);
+                        } else {
+                            map.removeLayer(regionLayers[region]);
+                        }
+                    });
+                });
+                
+                function updateFilterAll() {
+                    const allChecked = sortedRegions.every(region => 
+                        document.getElementById(`filter-${region}`).checked
+                    );
+                    document.getElementById('filter-all').checked = allChecked;
+                }
                 
                 // Cacher le loading
                 document.getElementById('loading').style.display = 'none';
                 
                 console.log('Carte chargée avec succès!');
-                console.log('Compteurs:', counts);
+                console.log('Total lignes affichées:', totalLines);
+                console.log('Régions:', sortedRegions);
             })
             .catch(error => {
                 console.error('Erreur lors du chargement des données:', error);
