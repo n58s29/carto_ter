@@ -4,194 +4,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ouverture à la concurrence des lignes ferroviaires françaises</title>
-    
-    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background-color: #f5f5f5;
-        }
-        
-        #header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        #header h1 {
-            font-size: 24px;
-            margin-bottom: 8px;
-        }
-        
-        #header p {
-            font-size: 14px;
-            opacity: 0.9;
-        }
-        
-        #map {
-            height: calc(100vh - 100px);
-            width: 100%;
-        }
-        
-        #legend {
-            position: absolute;
-            bottom: 30px;
-            right: 20px;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            z-index: 1000;
-            max-width: 350px;
-        }
-        
-        #legend h3 {
-            margin: 0 0 15px 0;
-            font-size: 16px;
-            color: #333;
-            border-bottom: 2px solid #667eea;
-            padding-bottom: 8px;
-        }
-        
-        .legend-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-        
-        .legend-line {
-            width: 40px;
-            height: 4px;
-            margin-right: 12px;
-            border-radius: 2px;
-        }
-        
-        .legend-text {
-            font-size: 13px;
-            color: #555;
-            flex: 1;
-        }
-        
-        .legend-count {
-            font-size: 12px;
-            color: #888;
-            background: #f0f0f0;
-            padding: 2px 8px;
-            border-radius: 10px;
-            margin-left: 8px;
-            font-weight: 600;
-        }
-        
-        .leaflet-popup-content {
-            margin: 15px;
-            min-width: 280px;
-        }
-        
-        .popup-title {
-            font-weight: bold;
-            font-size: 16px;
-            color: #333;
-            margin-bottom: 10px;
-            border-bottom: 2px solid #667eea;
-            padding-bottom: 5px;
-        }
-        
-        .popup-info {
-            font-size: 13px;
-            line-height: 1.6;
-            color: #555;
-        }
-        
-        .popup-row {
-            display: flex;
-            margin: 6px 0;
-        }
-        
-        .popup-label {
-            font-weight: 600;
-            color: #667eea;
-            min-width: 90px;
-        }
-        
-        .popup-value {
-            color: #333;
-        }
-        
-        .status-badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-        
-        .status-sncf {
-            background: #4CAF50;
-            color: white;
-        }
-        
-        .status-concurrent {
-            background: #2196F3;
-            color: white;
-        }
-        
-        .status-encours {
-            background: #FF9800;
-            color: white;
-        }
-        
-        #loading {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 30px 50px;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            z-index: 2000;
-            text-align: center;
-        }
-        
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; }
+        #header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        #header h1 { font-size: 24px; margin-bottom: 8px; }
+        #header p { font-size: 14px; opacity: 0.9; }
+        #map { height: calc(100vh - 100px); width: 100%; }
+        #legend { position: absolute; bottom: 30px; right: 20px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 1000; max-width: 350px; }
+        #legend h3 { margin: 0 0 15px 0; font-size: 16px; color: #333; border-bottom: 2px solid #667eea; padding-bottom: 8px; }
+        .legend-item { display: flex; align-items: center; margin-bottom: 12px; }
+        .legend-line { width: 40px; height: 4px; margin-right: 12px; border-radius: 2px; }
+        .legend-text { font-size: 13px; color: #555; flex: 1; }
+        .legend-count { font-size: 12px; color: #888; background: #f0f0f0; padding: 2px 8px; border-radius: 10px; margin-left: 8px; font-weight: 600; }
+        .leaflet-popup-content { margin: 15px; min-width: 280px; }
+        .popup-title { font-weight: bold; font-size: 16px; color: #333; margin-bottom: 10px; border-bottom: 2px solid #667eea; padding-bottom: 5px; }
+        .popup-info { font-size: 13px; line-height: 1.6; color: #555; }
+        .popup-row { display: flex; margin: 6px 0; }
+        .popup-label { font-weight: 600; color: #667eea; min-width: 90px; }
+        .status-badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+        .status-sncf { background: #4CAF50; color: white; }
+        .status-concurrent { background: #2196F3; color: white; }
+        .status-encours { background: #FF9800; color: white; }
+        #loading { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px 50px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 2000; text-align: center; }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #667eea; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 15px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
     <div id="header">
         <h1>🚆 Ouverture à la concurrence des lignes ferroviaires françaises</h1>
-        <p>État des lignes TER et TET (hors Île-de-France et Corse) - Source: Contexte, novembre 2025</p>
+        <p>État des lignes TER et TET (hors Île-de-France et Corse) - Tracés réels - Source: Contexte, novembre 2025</p>
     </div>
-    
-    <div id="loading">
-        <div class="spinner"></div>
-        <div>Chargement de la carte...</div>
-    </div>
-    
+    <div id="loading"><div class="spinner"></div><div>Chargement de la carte...</div></div>
     <div id="map"></div>
-    
     <div id="legend">
         <h3>Légende</h3>
         <div class="legend-item">
@@ -210,73 +57,16 @@
             <span class="legend-count" id="count-encours">0</span>
         </div>
         <hr style="margin: 15px 0; border: none; border-top: 1px solid #ddd;">
-        <div style="font-size: 12px; color: #666;">
-            <strong>Total lignes:</strong> <span id="total-lines">0</span>
-        </div>
+        <div style="font-size: 12px; color: #666;"><strong>Tracés affichés:</strong> <span id="total-lines">0</span></div>
     </div>
-
-    <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
     <script>
-        // Coordonnées GPS des gares
-        const garesCoords = {
-            "Nancy": [48.6892, 6.1763], "Contrexville": [48.1833, 5.8833], "Épinal": [48.1833, 6.45],
-            "Saint-Die-des-vosges": [48.2833, 6.9333], "Strasbourg": [48.5839, 7.7355],
-            "Sélestat": [48.2597, 7.4581], "Molsheim": [48.5433, 7.4903], "Metz": [49.1097, 6.1769],
-            "Trier": [49.7597, 6.6414], "Saarbrücken": [49.2411, 6.9969], "Wissembourg": [49.0392, 7.9481],
-            "Neustadt": [49.3508, 8.1353], "Lauterbourg": [48.9756, 8.1756], "Wörth": [49.0547, 8.2586],
-            "Karlsruhe": [49.0069, 8.4036], "Offenburg": [48.4717, 7.9417], "Mulhouse": [47.7467, 7.3392],
-            "Müllheim": [47.8083, 7.6289], "Epernay": [49.0419, 3.9581], "Reims": [49.2589, 4.0253],
-            "ChâteauThierry": [49.0467, 3.4008], "ChampagneArdenneTGV": [49.2269, 4.2069],
-            "Charleville-Mézières": [49.7686, 4.7181], "Charleville-mézières": [49.7686, 4.7181],
-            "Sedan": [49.7017, 4.9392], "Givet": [50.1367, 4.8256], "Hirson": [49.9219, 4.0833],
-            "Longuyon": [49.4506, 5.6011], "Longwy": [49.5194, 5.7647], "Thionville": [49.3578, 6.1667],
-            "Châlons-en-Champagne": [48.9561, 4.3656], "Saint-Dizier": [48.6381, 4.9497],
-            "Chaumont": [48.1108, 5.1389], "Culmont-Chalindrey": [47.8392, 5.3847],
-            "Fismes": [49.3106, 3.6817], "Laon": [49.5633, 3.6239], "Dijon": [47.3239, 5.0267],
-            "Mâcon": [46.3069, 4.8283], "Cosne": [47.4106, 2.9269], "Moulins": [46.5672, 3.3333],
-            "Chagny": [46.9108, 4.7556], "Nevers": [46.9906, 3.1514], "Montchanin": [46.7447, 4.4675],
-            "Paray": [46.4517, 4.1197], "Lyon": [45.7603, 4.8592], "Amiens": [49.8642, 2.3078],
-            "Tergnier": [49.6556, 3.2908], "Saint-Quentin": [49.8478, 3.2872], "Albert": [50.0036, 2.6517],
-            "Lille": [50.6367, 3.0764], "Abbeville": [50.1053, 1.8336], "Beauvais": [49.4447, 2.0808],
-            "Abancourt": [49.6917, 1.7667], "LeTréport": [50.0606, 1.3761], "Creil": [49.2592, 2.4761],
-            "Montdidier": [49.6492, 2.5694], "Compiègne": [49.4178, 2.8261], "Rouen": [49.4436, 1.0939],
-            "Paris": [48.8566, 2.3522], "Calais": [50.9511, 1.8583], "Maubeuge": [50.2772, 3.9728],
-            "Cambrai": [50.1764, 3.2347], "Roissy": [49.0097, 2.5478],
-            "Saint-pol-sur-ternoise": [50.3833, 2.3333], "Arras": [50.2900, 2.7806],
-            "Béthune": [50.5300, 2.6400], "Etaples": [50.5178, 1.6375], "Nantes": [47.2173, -1.5417],
-            "Nort-sur-Erdre": [47.4381, -1.4989], "Chateaubriand": [47.7167, -1.3667],
-            "Clisson": [47.0867, -1.2800], "Pornic": [47.1158, -2.1028],
-            "Saint-Gilles-Croix-de-vie": [46.6967, -1.9400], "LaRoche-sur-yon": [46.6706, -1.4264],
-            "LesSablesd'olonne": [46.4967, -1.7833], "LaRochelle": [46.1583, -1.1514],
-            "Cholet": [47.0594, -0.8778], "Angers": [47.4639, -0.5561], "Marseille": [43.3028, 5.3806],
-            "Toulon": [43.1247, 5.9300], "Nice": [43.7031, 7.2619], "LesArcsDraguignan": [43.4606, 6.4783],
-            "Vintimille": [43.7897, 7.5078], "Cannes": [43.5528, 7.0175], "Grasse": [43.6583, 6.9222],
-            "Breil-sur-Roya": [43.9400, 7.5167], "Tende": [44.0889, 7.5953], "Aubagne": [43.2933, 5.5706],
-            "Hyères": [43.1200, 6.1289], "Aix-en-provence": [43.5297, 5.4475], "Pertuis": [43.6947, 5.5014],
-            "Gap": [44.5600, 6.0797], "Briançon": [44.9000, 6.6333], "Valence": [44.9331, 4.8919],
-            "Romans": [45.0458, 5.0511], "Miramas": [43.5833, 5.0000], "Avignon": [43.9419, 4.8061],
-            "Nîmes": [43.8367, 4.3603], "Montpellier": [43.6047, 3.8808], "Carpentras": [44.0556, 5.0478],
-            "Caen": [49.1764, -0.3486], "Coutances": [49.0478, -1.4450], "Saint-Lô": [49.1156, -1.0906],
-            "Evreux": [49.0233, 1.1489], "Cherbourg": [49.6450, -1.6244], "Lisieux": [49.1467, 0.2267],
-            "Granville": [48.8378, -1.5978], "Rennes": [48.1039, -1.6722],
-            "Trouville-Deauville": [49.3656, 0.0800], "Dives-Cabourg": [49.2886, -0.0997],
-            "Rochefort": [45.9367, -0.9633], "Saintes": [45.7469, -0.6333], "Bordeaux": [44.8378, -0.5792],
-            "Angoulême": [45.6500, 0.1600], "Royan": [45.6250, -1.0286], "Niort": [46.3236, -0.4614],
-            "Poitiers": [46.5806, 0.3406], "Tours": [47.3900, 0.6889], "Châtellerault": [46.8178, 0.5464],
-            "Clermont": [45.7797, 3.0867], "Limoges": [45.8336, 1.2639], "Toulouse": [43.6108, 1.4542]
-        };
-        
-        // Initialiser la carte
         const map = L.map('map').setView([46.603354, 2.888334], 6);
-        
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors',
             maxZoom: 18
         }).addTo(map);
         
-        // Couleurs par statut
         const statusColors = {
             'attribue_SNCF': '#4CAF50',
             'attribue_concurrent': '#2196F3',
@@ -289,117 +79,102 @@
             'mis_en_concurrence_pas_attribue': 'Mis en concurrence (non attribué)'
         };
         
-        function parseRelation(relation) {
-            // Nettoyer et séparer les villes
-            return relation.split('>').map(v => v.trim());
-        }
-        
-        function createPopup(ligne) {
+        function createPopup(ligne, regionVisu) {
             const operateur = ligne.operateur || 'Non attribué';
             const statusClass = ligne.statut === 'attribue_SNCF' ? 'status-sncf' : 
-                                ligne.statut === 'attribue_concurrent' ? 'status-concurrent' : 
-                                'status-encours';
-            
-            return `
-                <div class="popup-title">${ligne.relation}</div>
+                                ligne.statut === 'attribue_concurrent' ? 'status-concurrent' : 'status-encours';
+            return `<div class="popup-title">${ligne.relation}</div>
                 <div class="popup-info">
-                    <div class="popup-row">
-                        <span class="popup-label">Région:</span>
-                        <span class="popup-value">${ligne.region}</span>
-                    </div>
-                    <div class="popup-row">
-                        <span class="popup-label">Type:</span>
-                        <span class="popup-value">${ligne.type_marche}</span>
-                    </div>
-                    <div class="popup-row">
-                        <span class="popup-label">Lot:</span>
-                        <span class="popup-value">${ligne.lot}</span>
-                    </div>
-                    <div class="popup-row">
-                        <span class="popup-label">Statut:</span>
-                        <span class="status-badge ${statusClass}">${statusLabels[ligne.statut]}</span>
-                    </div>
-                    ${operateur !== 'Non attribué' ? `
-                    <div class="popup-row">
-                        <span class="popup-label">Opérateur:</span>
-                        <span class="popup-value">${operateur}</span>
-                    </div>
-                    ` : ''}
-                </div>
-            `;
+                    <div class="popup-row"><span class="popup-label">Région:</span><span class="popup-value">${ligne.region}</span></div>
+                    <div class="popup-row"><span class="popup-label">Type:</span><span class="popup-value">${ligne.type_marche}</span></div>
+                    <div class="popup-row"><span class="popup-label">Lot:</span><span class="popup-value">${ligne.lot}</span></div>
+                    <div class="popup-row"><span class="popup-label">Statut:</span><span class="status-badge ${statusClass}">${statusLabels[ligne.statut]}</span></div>
+                    ${operateur !== 'Non attribué' ? `<div class="popup-row"><span class="popup-label">Opérateur:</span><span class="popup-value">${operateur}</span></div>` : ''}
+                    <hr style="margin: 8px 0;"><div style="font-size: 11px; color: #888;">Tracé de la région: ${regionVisu}</div>
+                </div>`;
         }
         
-        // Charger les données
-        fetch('railway_data.json')
+        fetch('railway_data_complete.json')
             .then(response => response.json())
             .then(data => {
+                const tracesByRegion = data.traces_par_region;
+                const regionMapping = data.region_mapping;
                 const etatLignes = data.etat_lignes;
                 
-                const counts = {
-                    'attribue_SNCF': 0,
-                    'attribue_concurrent': 0,
-                    'mis_en_concurrence_pas_attribue': 0
-                };
-                
-                let totalLines = 0;
-                let missingGares = new Set();
-                
-                // Pour chaque ligne dans le JSON
+                // Créer un index: pour chaque ancienne région, quel statut?
+                const regionStatus = {};
                 etatLignes.forEach(ligne => {
-                    const villes = parseRelation(ligne.relation);
-                    const color = statusColors[ligne.statut];
-                    
-                    // Tracer la ligne entre chaque paire de villes consécutives
-                    for (let i = 0; i < villes.length - 1; i++) {
-                        const ville1 = villes[i];
-                        const ville2 = villes[i + 1];
-                        
-                        const coord1 = garesCoords[ville1];
-                        const coord2 = garesCoords[ville2];
-                        
-                        if (coord1 && coord2) {
-                            const polyline = L.polyline([coord1, coord2], {
-                                color: color,
-                                weight: 4,
-                                opacity: 0.7
+                    const anciennes = regionMapping[ligne.region] || [ligne.region];
+                    anciennes.forEach(old => {
+                        if (old === '*') {
+                            // Toutes les régions
+                            Object.keys(tracesByRegion).forEach(r => {
+                                if (!regionStatus[r]) regionStatus[r] = [];
+                                regionStatus[r].push(ligne);
                             });
-                            
-                            polyline.bindPopup(createPopup(ligne));
-                            polyline.addTo(map);
-                            totalLines++;
                         } else {
-                            if (!coord1) missingGares.add(ville1);
-                            if (!coord2) missingGares.add(ville2);
+                            if (!regionStatus[old]) regionStatus[old] = [];
+                            regionStatus[old].push(ligne);
                         }
-                    }
-                    
-                    counts[ligne.statut]++;
+                    });
                 });
                 
-                // Mettre à jour les compteurs
+                let totalTraces = 0;
+                const counts = { 'attribue_SNCF': 0, 'attribue_concurrent': 0, 'mis_en_concurrence_pas_attribue': 0 };
+                
+                // Afficher les tracés des régions concernées
+                Object.entries(regionStatus).forEach(([regionName, lignesInfo]) => {
+                    const traces = tracesByRegion[regionName];
+                    if (!traces) return;
+                    
+                    // Déterminer le statut dominant (priorité: concurrent > SNCF > en_concurrence)
+                    let dominantStatus = null;
+                    if (lignesInfo.some(l => l.statut === 'attribue_concurrent')) {
+                        dominantStatus = 'attribue_concurrent';
+                    } else if (lignesInfo.some(l => l.statut === 'attribue_SNCF')) {
+                        dominantStatus = 'attribue_SNCF';
+                    } else {
+                        dominantStatus = 'mis_en_concurrence_pas_attribue';
+                    }
+                    
+                    const color = statusColors[dominantStatus];
+                    const ligneRepresentative = lignesInfo.find(l => l.statut === dominantStatus) || lignesInfo[0];
+                    
+                    // Afficher les tracés
+                    traces.forEach(trace => {
+                        const simplified = trace.coords.filter((_, i) => i % 2 === 0 || i === trace.coords.length - 1);
+                        const latLngs = simplified.map(c => [c[1], c[0]]);
+                        
+                        if (latLngs.length >= 2) {
+                            const polyline = L.polyline(latLngs, {
+                                color: color,
+                                weight: 3,
+                                opacity: 0.7
+                            });
+                            polyline.bindPopup(createPopup(ligneRepresentative, regionName));
+                            polyline.addTo(map);
+                            totalTraces++;
+                        }
+                    });
+                });
+                
+                // Compter les lignes par statut
+                etatLignes.forEach(ligne => counts[ligne.statut]++);
+                
                 document.getElementById('count-sncf').textContent = counts['attribue_SNCF'];
                 document.getElementById('count-concurrent').textContent = counts['attribue_concurrent'];
                 document.getElementById('count-encours').textContent = counts['mis_en_concurrence_pas_attribue'];
-                document.getElementById('total-lines').textContent = totalLines;
-                
-                // Afficher les gares manquantes
-                if (missingGares.size > 0) {
-                    console.warn('Gares sans coordonnées:', Array.from(missingGares));
-                }
-                
+                document.getElementById('total-lines').textContent = totalTraces;
                 document.getElementById('loading').style.display = 'none';
                 
                 console.log('Carte chargée!');
-                console.log('Lignes tracées:', totalLines);
-                console.log('Compteurs:', counts);
+                console.log('Tracés affichés:', totalTraces);
+                console.log('Lignes référencées:', etatLignes.length);
             })
             .catch(error => {
                 console.error('Erreur:', error);
                 document.getElementById('loading').innerHTML = `
-                    <div style="color: #d32f2f;">
-                        <h3>Erreur de chargement</h3>
-                        <p>${error.message}</p>
-                    </div>
+                    <div style="color: #d32f2f;"><h3>Erreur de chargement</h3><p>${error.message}</p></div>
                 `;
             });
     </script>
